@@ -1,0 +1,23 @@
+str: "I have an apple."
+strchr( str, c ) = ave an apple.
+location is 3
+strrchr( str, c ) = apple.
+location is 10
+
+str2: "the value of pi is 3.14"
+accept: "abcdefghijklmnopqrstuvwxyz"
+reject: "0123456789"
+accept2: "abc"
+strspn( str2, accept ) = 3
+strcspn( str2, reject ) = 19
+strpbrk( str2, accept2 ) = a, which is in 5
+
+needle: "pi"
+strstr( str2, needle ): pi is 3.14
+
+0: the
+1: value
+2: of
+3: pi
+4: is
+5: 3.14
