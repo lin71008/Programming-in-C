@@ -1,0 +1,6 @@
+# template file or folder
+temp/
+*.o
+
+# binary file
+*.exe
