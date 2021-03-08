@@ -1,6 +1,5 @@
 Homework 1
-====
-A simple project directories template for lazy people, like [me].
+==========
 
 Table of Contents
 -----------------
@@ -36,6 +35,10 @@ All executables accept no arguments, you can simply run in shell.
 Configuration
 -------------
 ### HW0102
-* change color ?
+You can edit Highlight Color at [hw0102.c](hw0102.c) in line 5 ~ 7.
 
-[me]: https://github.com/lin71008
+```c
+#define DEFAULT_COLOR "\x1b[0m"
+#define ORIGINAL_COLOR "\x1b[34m"
+#define REPLACEMRNT_COLOR "\x1b[31m"
+```

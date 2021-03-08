@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WHITE_COLOR "\x1b[0m"
-#define RED_COLOR "\x1b[31m"
-#define BLUE_COLOR "\x1b[34m"
+#define DEFAULT_COLOR "\x1b[0m"
+#define ORIGINAL_COLOR "\x1b[34m"
+#define REPLACEMRNT_COLOR "\x1b[31m"
 
 #define N 1024
 #define M 128
@@ -90,12 +90,12 @@ void replacement_with_colors(colors **r, colors **o, char *d, const char *s, con
 
         idy += p-s-idx;
         idx += p-s-idx;
+        add_colors(o, idx, ORIGINAL_COLOR);
 
-        add_colors(o, idx, BLUE_COLOR);
-        add_colors(o, idx+olen, WHITE_COLOR);
+        add_colors(o, idx+olen, DEFAULT_COLOR);
 
-        add_colors(r, idy, RED_COLOR);
-        add_colors(r, idy+nlen, WHITE_COLOR);
+        add_colors(r, idy, REPLACEMRNT_COLOR);
+        add_colors(r, idy+nlen, DEFAULT_COLOR);
 
         strncpy(d+idy, n, nlen);
 
