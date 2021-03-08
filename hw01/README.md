@@ -17,8 +17,11 @@ Name: 林弘祥, Student ID: 40641213S
 
 Requirement
 -----------
-* gnu gcc
-* gnu make
+* [gnu gcc]
+* [gnu make]
+
+[gnu gcc]: https://gcc.gnu.org/
+[gnu make]: https://www.gnu.org/software/make/
 
 Build
 -----

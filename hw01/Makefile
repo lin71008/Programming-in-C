@@ -4,7 +4,7 @@ CFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-unused-function
 LDFLAGS = -lm
 
 OBJECTS = $(patsubst %.c,%.o,$(wildcard hw*.c))
-TARGETS = hw0101 hw0102 hw0103 hw0104 hw0105
+TARGETS = hw0101 hw0102 hw0103 hw0105
 
 hw0101: hw0101.o
 hw0102: hw0102.o
