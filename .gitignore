@@ -1,3 +1,6 @@
+# release folder
+release/
+
 # template file or folder
 temp/
 *.o

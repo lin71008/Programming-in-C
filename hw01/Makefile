@@ -3,7 +3,7 @@ CFLAGS = -std=gnu11 -g -Wall -Werror -Wextra
 CFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-unused-function
 LDFLAGS = -lm
 
-OBJECTS = $(patsubst %.c,%.o,$(wildcard hw*.c))
+OBJECTS = $(patsubst %.c,%.o,$(wildcard *.c))
 TARGETS = hw0101 hw0102 hw0103 hw0105
 
 hw0101: hw0101.o
@@ -28,7 +28,7 @@ all: $(TARGETS)
 install:
 	@echo "Nothing needs to be installed."
 
-EXEC := $(wildcard *.exe)
+EXEC = $(filter $(patsubst %, %.exe, $(TARGETS)),$(wildcard *.exe))
 
 $(EXEC): FORCE
 	@echo "=== Start test program $@ ==="
@@ -43,3 +43,6 @@ test: $(EXEC)
 
 clean:
 	rm -f $(OBJECTS)
+
+release: FORCE
+	7z a ./release/$(shell date --utc +"%m-%d-%Y-%H-%M-%S").zip $(filter-out %zip $(OBJECTS) $(EXEC),$(wildcard *))
