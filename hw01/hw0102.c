@@ -66,7 +66,7 @@ void colorful_print(const char* str, const colors *cdata)
     int idx = 0;
     while (str != NULL && str[idx] != 0x00)
     {
-        if (cdata != NULL && cdata->pos == idx)
+        while (cdata != NULL && cdata->pos == idx)
         {
             printf("%s", cdata->code);
             cdata = cdata->next;

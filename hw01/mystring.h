@@ -1,15 +1,12 @@
 #ifndef __MYSTRING_H__
 #define __MYSTRING_H__
 
-#include <stdio.h>
-#include <string.h>
-
 char* mystrchr(const char *s, int c)
 {
-    if (s == NULL) return NULL;
-    while (*s != '\0')
+    while (s != NULL)
     {
         if (*s == c) return (char*) s;
+        if (*s == '\0') break;
         s++;
     }
     return NULL;
@@ -17,11 +14,11 @@ char* mystrchr(const char *s, int c)
 
 char* mystrrchr(const char *s, int c)
 {
-    if (s == NULL) return NULL;
     const char *p = NULL;
-    while (*s != '\0')
+    while (s != NULL)
     {
         if (*s == c) p = s;
+        if (*s == '\0') break;
         s++;
     }
     return (char*) p;
@@ -48,13 +45,13 @@ size_t mystrspn(const char *s, const char *accept)
 
 size_t mystrcspn(const char *s, const char *reject)
 {
-    if (s == NULL || reject == NULL) return 0;
+    if (s == NULL) return 0;
     size_t n = 0;
     const char *p;
     while (*s != '\0')
     {
         p = reject;
-        while (*p != '\0')
+        while (reject != NULL && *p != '\0')
         {
             if (*s == *p) break;
             p++;
@@ -129,7 +126,14 @@ char* mystrtok(char *str, const char *delim)
         }
         s++;
     }
-    if (*s == '\0') last = NULL;
+    if (*s == '\0')
+    {
+        last = NULL;
+        if (*str == '\0')
+        {
+            return NULL;
+        }
+    }
     return str;
 }
 
