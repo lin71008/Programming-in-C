@@ -2,29 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DEFAULT_COLOR "\x1b[0m"
-#define ORIGINAL_COLOR "\x1b[34m"
-#define REPLACEMRNT_COLOR "\x1b[31m"
+#include "color.h"
+
+#define DEFAULT_COLOR WHITE
+#define ORIGINAL_COLOR BLUE
+#define REPLACEMRNT_COLOR RED
 
 #define N 1024
 #define M 128
 
-typedef struct colors
+typedef struct _sColors
 {
     int pos;
     const char *code;
-    struct colors *next;
-} colors;
+    struct _sColors *next;
+} sColors;
 
-void add_colors(colors **destination, const int position, const char *colorcode);
+void AddColors(sColors **destination, const int position, const char * const colorcode);
+void FreeColors(sColors **destination);
 
-void colorful_print(const char* string, const colors *cdata);
-void replacement_with_colors(colors **repleacementcolor, colors **originalcolor, char *destination, const char *source, const char *keyword, const char *newword);
+void ColorfulPrint(const char* string, const sColors *cdata);
+void ColorfulReplacement(sColors **repleacementcolor, sColors **originalcolor, char *destination, const char *source, const char *keyword, const char *newword);
 
 int main()
 {
     char ibuffer[N], obuffer[N], keyword[M], newword[M];
-    colors *original_color = NULL, *new_color = NULL;
+    sColors *original_color = NULL, *new_color = NULL;
 
     printf("Please enter the original text:\n");
     fgets(ibuffer, N, stdin);
@@ -36,32 +39,47 @@ int main()
     if (keyword[strlen(keyword)-1] == 0x0A) keyword[strlen(keyword)-1] = 0x00;  // remove '\n'
     if (newword[strlen(newword)-1] == 0x0A) newword[strlen(newword)-1] = 0x00;  // remove '\n'
 
-    replacement_with_colors(&new_color, &original_color, obuffer, ibuffer, keyword, newword);
+    ColorfulReplacement(&new_color, &original_color, obuffer, ibuffer, keyword, newword);
 
     printf("\nBefore:\n");
-    colorful_print(ibuffer, original_color);
+    ColorfulPrint(ibuffer, original_color);
 
     printf("After:\n");
-    colorful_print(obuffer, new_color);
+    ColorfulPrint(obuffer, new_color);
+
+    FreeColors(&original_color);
+    FreeColors(&new_color);
+    FreeColors(&original_color);
+    FreeColors(&new_color);
 
     return 0;
 }
 
-void add_colors(colors **d, const int p, const char *c)
+void AddColors(sColors **d, const int p, const char * const c)
 {
     if (d == NULL) return;
     while (*d != NULL)
     {
         d = &((*d)->next);
     }
-    (*d) = (colors*) malloc(sizeof(colors));
+    (*d) = (sColors*) malloc(sizeof(sColors));
     (*d)->pos = p;
     (*d)->code = c;
     (*d)->next = NULL;
 }
 
+void FreeColors(sColors **destination)
+{
+    if (destination == NULL || *destination == NULL) return;
+    while (*destination != NULL)
+    {
+        sColors *p = *destination;
+        *destination = (*destination)->next;
+        free(p);
+    }
+}
 
-void colorful_print(const char* str, const colors *cdata)
+void ColorfulPrint(const char* str, const sColors *cdata)
 {
     int idx = 0;
     while (str != NULL && str[idx] != 0x00)
@@ -76,8 +94,13 @@ void colorful_print(const char* str, const colors *cdata)
     }
 }
 
-void replacement_with_colors(colors **r, colors **o, char *d, const char *s, const char *k, const char *n)
+void ColorfulReplacement(sColors **r, sColors **o, char *d, const char *s, const char *k, const char *n)
 {
+    if (s == NULL || k == NULL || n == NULL || r == NULL || o == NULL) return;
+
+    AddColors(o, 0, DEFAULT_COLOR);
+    AddColors(r, 0, DEFAULT_COLOR);
+
     const int slen = strlen(s);
     const int olen = strlen(k);
     const int nlen = strlen(n);
@@ -87,18 +110,15 @@ void replacement_with_colors(colors **r, colors **o, char *d, const char *s, con
     while (p != NULL)
     {
         strncpy(d+idy, s+idx, p-s-idx);
-
         idy += p-s-idx;
         idx += p-s-idx;
-        add_colors(o, idx, ORIGINAL_COLOR);
 
-        add_colors(o, idx+olen, DEFAULT_COLOR);
-
-        add_colors(r, idy, REPLACEMRNT_COLOR);
-        add_colors(r, idy+nlen, DEFAULT_COLOR);
+        AddColors(o, idx, ORIGINAL_COLOR);
+        AddColors(o, idx+olen, DEFAULT_COLOR);
+        AddColors(r, idy, REPLACEMRNT_COLOR);
+        AddColors(r, idy+nlen, DEFAULT_COLOR);
 
         strncpy(d+idy, n, nlen+1);
-
         idx += olen;
         idy += nlen;
 

@@ -7,10 +7,10 @@ OBJECTS = $(patsubst %c,%o,$(wildcard *.c))
 TARGETS = hw0101 hw0102 hw0103 hw0105
 
 hw0101: hw0101.o
-hw0102: hw0102.o
-hw0103: hw0103.o
+hw0102: hw0102.o color.h
+hw0103: hw0103.o hw0103.h
 hw0104: hw0104.o
-hw0105: hw0105.o
+hw0105: hw0105.o mystring.h
 
 $(OBJECTS): %o: %c
 	$(CC) $(CFLAGS) -c -o $@ $<

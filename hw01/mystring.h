@@ -1,6 +1,8 @@
 #ifndef __MYSTRING_H__
 #define __MYSTRING_H__
 
+#include <stddef.h>
+
 char* mystrchr(const char *s, int c)
 {
     while (s != NULL)

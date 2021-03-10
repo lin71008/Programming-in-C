@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#define ONELINE
 #define N 8
 
-int hextostr(char *destination, const int len, const char *source);
+int HexToStr(char *destination, const int len, const char *source);
 
 int main()
 {
@@ -12,9 +13,15 @@ int main()
 
     while(fgets(ibuffer, 2*N+1, stdin) != NULL)
     {
-        endline = hextostr(obuffer, N, ibuffer);
+        endline = HexToStr(obuffer, N, ibuffer);
         printf("%s", obuffer);
-        if (endline) printf("\n");
+        if (endline)
+        {
+            printf("\n");
+#ifdef ONELINE
+            break;
+#endif
+        }
     }
     return 0;
 }
@@ -25,7 +32,7 @@ static inline int hexchartohex(const char c)
 }
 
 static char last = '\0';
-int hextostr(char *d, const int len, const char *s)
+int HexToStr(char *d, const int len, const char *s)
 {
     if (d == NULL || s == NULL) return 0;
     int idx = 0;
@@ -52,7 +59,7 @@ int hextostr(char *d, const int len, const char *s)
         else if (isxdigit(H) && isxdigit(L))
         {
             last = hexchartohex(L)|hexchartohex(H)<<4;
-            if (last == '\0' || isprint(last))
+            if (last == '\0' || last == '\t' || last == '\n' || isprint(last))
             {
                 d[idx] = last;
             }
