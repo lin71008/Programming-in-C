@@ -21,7 +21,7 @@ void add_colors(colors **destination, const int position, const char *colorcode)
 void colorful_print(const char* string, const colors *cdata);
 void replacement_with_colors(colors **repleacementcolor, colors **originalcolor, char *destination, const char *source, const char *keyword, const char *newword);
 
-int main(int argc, char const *argv[])
+int main()
 {
     char ibuffer[N], obuffer[N], keyword[M], newword[M];
     colors *original_color = NULL, *new_color = NULL;
@@ -97,7 +97,7 @@ void replacement_with_colors(colors **r, colors **o, char *d, const char *s, con
         add_colors(r, idy, REPLACEMRNT_COLOR);
         add_colors(r, idy+nlen, DEFAULT_COLOR);
 
-        strncpy(d+idy, n, nlen);
+        strncpy(d+idy, n, nlen+1);
 
         idx += olen;
         idy += nlen;

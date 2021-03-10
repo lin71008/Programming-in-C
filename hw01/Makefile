@@ -46,7 +46,7 @@ test: $(EXEC)
 	@echo "All program have been tested."
 
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(OBJECTS) $(EXEC)
 
 # ignore below
 
@@ -58,14 +58,16 @@ release: SOURCE = $(filter-out $(EXCLUDE) $(OBJECTS) $(EXEC),$(wildcard *))
 release: EXCLUDE = Makefile %md pre-release release temp
 release: INCLUDE = README.md Note.md
 
-pre-release:
+pre-release: CFLAGS = -std=gnu11 -O2 -Wall -Werror -Wextra
+
+pre-release: all test
 	mkdir -p pre-release
 	$(foreach doc,$(DOCUMENT),cp $(doc) ./pre-release/$(doc);)
 	$(foreach doc,$(DOCUMENT:%=./pre-release/%),pandoc --pdf-engine=xelatex --template owo.tex $(doc) -o $(doc:%md=%pdf);)
 	$(foreach doc,$(DOCUMENT:%=./pre-release/%),rm $(doc);)
 	sed '/ignore below/Q' Makefile > ./pre-release/Makefile
 
-release: all test pre-release
+release: pre-release clean
 	7z u ./release/$(VERSION).zip $(SOURCE) $(INCLUDE)
 	7z u ./release/$(VERSION).zip ./pre-release/*
 	@echo "================================"
