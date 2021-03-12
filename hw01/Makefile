@@ -4,13 +4,13 @@ CFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-unused-function -Wno-u
 LDFLAGS = -lm
 
 OBJECTS = $(patsubst %c,%o,$(wildcard *.c))
-TARGETS = hw0101 hw0102 hw0103 hw0105
+TARGETS = hw0101 hw0102 hw0103 hw0104 hw0105
 
 hw0101: hw0101.o
-hw0102: hw0102.o color.h
-hw0103: hw0103.o hw0103.h
-hw0104: hw0104.o
-hw0105: hw0105.o mystring.h
+hw0102: hw0102.o
+hw0103: hw0103.o
+hw0104: hw0104.o json.o
+hw0105: hw0105.o mystring.o
 
 $(OBJECTS): %o: %c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -33,16 +33,19 @@ TFI = $(patsubst %exe,$(TPATH)/%input,$@)
 TFO = $(patsubst %exe,$(TPATH)/%output,$@)
 
 EXEC = $(filter $(patsubst %,%.exe, $(TARGETS)),$(wildcard *.exe))
+TIMELIMIT = 1.00s
 
 $(EXEC): FORCE
 	@echo "=== Start test program $@"
 	@echo "=== Test with example input"
 	@cat $(TFI)
 	@echo "=== Result"
-	@./$@ <$(TFI)|diff - $(TFO) --color=always -s
+	@timeout -k 9 $(TIMELIMIT) ./$@ <$(TFI)|diff - $(TFO) --color=always -s
 	@echo "================================"
 
 test: $(EXEC)
+	@echo "$(EXEC)"
+	@echo "================================"
 	@echo "All program have been tested."
 
 clean:
