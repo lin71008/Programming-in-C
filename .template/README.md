@@ -1,37 +1,39 @@
-Project Template
-================
-A simple project directories template for lazy people, like [me].
+Homework 0
+==========
 
 Table of Contents
 -----------------
-* [Install](#install)
-    - [Requirement](#requirement)
-    - [Build](#build)
-* [Usage](#usage)
+* [Author Info](#author-info)
+* [Requirement](#requirement)
+* [Build](#build)
+* [Run](#run)
 * [Configuration](#configuration)
+* [Develop Note](Note.md)
 * [License](LICENSE)
 
-Install
--------
-### Requirement
-* git
+Author Info
+-----------
+Name: 林弘祥, Student ID: 40641213S
 
-### Build
-```bash
-git clone ?
-cd ?
-```
+Requirement
+-----------
+* [gnu gcc]
+* [gnu make]
 
-Usage
+[gnu gcc]: https://gcc.gnu.org/
+[gnu make]: https://www.gnu.org/software/make/
+
+Build
 -----
+Run `make` to build this homework, all executables will be compiled.
 
-### Duplicate
-```bash
-cp -r .template ?
-```
+Or you can just run `make $(file)` to compile the file you would.
+
+Also supported `make test`, `make clean`.
+
+Run
+---
+All executables accept no arguments, you can simply run in shell.
 
 Configuration
 -------------
-?
-
-[me]: https://github.com/lin71008

@@ -1,13 +1,12 @@
 CC = gcc
 CFLAGS = -std=gnu11 -g -Wall -Werror -Wextra
+CFLAGS += -Wno-unused-variable -Wno-unused-parameter -Wno-unused-function -Wno-unused-but-set-variable
 LDFLAGS = -lm
 
-OBJECTS = $(patsubst %.c, %.o, $(wildcard hw*.c))
-TARGETS = hw0*01 hw0*02 hw0*03
+OBJECTS = $(patsubst %c, %o, $(wildcard *.c))
+TARGETS = hw0000
 
-hw0*01: hw0*01.o
-hw0*02: hw0*02.o share.o
-hw0*03: hw0*03.o share.o extra.o
+hw0000: hw0000.o
 
 $(OBJECTS): %o: %c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -15,17 +14,59 @@ $(OBJECTS): %o: %c
 $(TARGETS): %: $(%)
 	$(CC) $(LDFLAGS) -o $@ $^
 
-.PHONY: clean
 .DEFAULT_GOAL := all
-
-all: $(TARGETS)
-	@echo All program has been compiled.
+.PHONY: install clean release
+FORCE:
 
 install:
-	@echo Nothing needs to be installed.
+	@echo "Nothing needs to be installed."
 
-test:
-	@echo Avaliable program: $(TARGETS)
+all: $(TARGETS)
+	@echo "All program have been compiled."
+
+TPATH = ./test
+TFI = $(patsubst %exe,$(TPATH)/%input,$@)
+TFO = $(patsubst %exe,$(TPATH)/%output,$@)
+
+EXEC = $(filter $(patsubst %,%.exe, $(TARGETS)),$(wildcard *.exe))
+TIMELIMIT = 1.00s
+
+$(EXEC): FORCE
+	@echo "=== Start test program $@"
+	@echo "=== Test with example input"
+	@head -n 10 $(TFI)
+	@echo "=== Result"
+	@timeout -k 9 $(TIMELIMIT) ./$@ <$(TFI)|diff - $(TFO) --color=always -B -s
+	@echo "================================"
+
+test: $(EXEC)
+	@echo "$(EXEC)"
+	@echo "================================"
+	@echo "All program have been tested."
 
 clean:
-	-rm $(OBJECTS)
+	rm -f $(OBJECTS) $(EXEC)
+
+pre-release: DOCUMENT = $(filter-out $(EXCLUDE),$(wildcard *.md))
+pre-release: EXCLUDE = README% Note%
+
+release: VERSION = $(shell date --utc +"%m-%d-%Y-%H-%M-%S")
+release: SOURCE = $(filter-out $(EXCLUDE) $(OBJECTS) $(EXEC),$(wildcard *))
+release: EXCLUDE = Makefile %md pre-release release temp
+release: INCLUDE = README.md Note.md
+
+pre-release: CFLAGS = -std=gnu11 -O2 -Wall -Werror -Wextra
+
+pre-release: all test
+	mkdir -p pre-release
+	$(foreach doc,$(DOCUMENT),cp $(doc) ./pre-release/$(doc);)
+	$(foreach doc,$(DOCUMENT:%=./pre-release/%),pandoc --pdf-engine=xelatex --template owo.tex $(doc) -o $(doc:%md=%pdf);)
+	$(foreach doc,$(DOCUMENT:%=./pre-release/%),rm $(doc);)
+	sed '/ignore below/Q' Makefile > ./pre-release/Makefile
+
+release: pre-release clean
+	7z u ./release/$(VERSION).zip $(SOURCE) $(INCLUDE)
+	7z u ./release/$(VERSION).zip ./pre-release/*
+	@echo "================================"
+	@echo "The release was success."
+	@echo "Available in ./release/$(VERSION).zip"
