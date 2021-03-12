@@ -8,3 +8,6 @@ temp/
 
 # binary file
 *.exe
+
+# todo
+*.todo
