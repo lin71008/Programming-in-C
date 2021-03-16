@@ -3,7 +3,7 @@
 
 void swap(const char** pA, const char** pB);
 
-int main(int argc, char const *argv[])
+int main()
 {
 	swap(&pStr01, &pStr02);
 	print_answers();

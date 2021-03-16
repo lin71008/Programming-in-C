@@ -38,10 +38,11 @@ All executables accept no arguments, you can simply run in shell.
 Configuration
 -------------
 ### HW0102
-You can edit Highlight Color at [hw0102.c](hw0102.c) in line 5 ~ 7.
+You can edit Highlight Color at [hw0102.c](hw0102.c) in line 7 ~ 9.
+Available color list at [color.h](color.h).
 
 ```c
-#define DEFAULT_COLOR "\x1b[0m"
-#define ORIGINAL_COLOR "\x1b[34m"
-#define REPLACEMRNT_COLOR "\x1b[31m"
+#define DEFAULT_COLOR WHITE
+#define ORIGINAL_COLOR BLUE
+#define REPLACEMRNT_COLOR RED
 ```
