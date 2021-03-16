@@ -1,10 +1,23 @@
 #ifndef __JSON__H__
 #define __JSON__H__
 
-#include <string.h>
-#include <stdbool.h>
+typedef enum _eJSON
+{
+    String, // key = string
+    Array,  // value = item, *next = *next
+    Object  // key = key, vlaue = value, *next = *next
+} eJSON;
 
-#define Padding " \t\r\n"
-#define Numeric "-0.123456789+eE"
+typedef struct _sJSON
+{
+    eJSON type;
+    char *key;
+    struct _sJSON *value, *next;
+} sJSON;
+
+extern sJSON* StringToJSON(char *str);
+extern sJSON* JSONGetValue(const sJSON *source, const char *key);
+extern sJSON* JSONGetItem(const sJSON *source, int index);
+extern void PrintJSON(const sJSON *source);
 
 #endif
