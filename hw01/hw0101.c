@@ -1,76 +1,116 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#define N 8
+#include "status.h"
 
-int hextostr(char *destination, const int len, const char *source);
+#define ONELINE
+#define N 80
+
+static const char* _lStatusStr[] = {
+    "No Error",
+    "Given argument can't be NULL",
+    "The hex string should be ended with 00",
+    "The length of the hex string should be a multiple of two",
+    "The hex-string contain illegal character",
+    "All input characters must be printable",
+    "Unknown Error"
+};
+
+eStatus HexToStr(char *destination, const int len, const char *source);
 
 int main()
 {
-    int endline = 0;
     char ibuffer[2*N+1], obuffer[N+1] = {0};
+    eStatus s;
 
     while(fgets(ibuffer, 2*N+1, stdin) != NULL)
     {
-        endline = hextostr(obuffer, N, ibuffer);
+        s = HexToStr(obuffer, N, ibuffer);
         printf("%s", obuffer);
-        if (endline) printf("\n");
+        if (s != Success && s != Continue)
+        {
+            printf("Error: %s\n", eStatusStr(s));
+            break;
+        }
+        if (s == Success)
+        {
+            printf("\n");
+#ifdef ONELINE
+            break;
+#endif
+        }
     }
     return 0;
 }
 
-static inline int hexchartohex(const char c)
+const char* eStatusStr(const eStatus e)
+{
+    if (e == Success || e == Continue) return _lStatusStr[0];
+    else if (e == InvalidNull) return _lStatusStr[1];
+    else if (e == ErrorFormat_0) return _lStatusStr[2];
+    else if (e == ErrorFormat_1) return _lStatusStr[3];
+    else if (e == InvalidCharacter_0) return _lStatusStr[4];
+    else if (e == InvalidPatten_0) return _lStatusStr[5];
+    else return _lStatusStr[6];
+}
+
+static inline int HexcharToHex(const char c)
 {
     return isdigit(c)?c-0x30:(c|0x20)-0x57;
 }
 
 static char last = '\0';
-int hextostr(char *d, const int len, const char *s)
+eStatus HexToStr(char *d, const int len, const char *s)
 {
-    if (d == NULL || s == NULL) return 0;
+    if (d == NULL || s == NULL) return InvalidNull;
+
     int idx = 0;
     char L, H = s[2*idx];
+    if (H == '\0' || H == '\n') return Success;
     while (H != '\0' && idx < len)
     {
         H = s[2*idx]; L = s[2*idx+1];
-        if (H == '\n')
+        if (H == '\n' || H == '\0')
         {
-            if (last != '\0')  // error: hex-string missing tail '\0'
+            if (last == '\0')
             {
-                printf("Error: The hex string should be ended with 00.\n");
+                d[idx] = '\0';
+                return Success;
             }
-            d[idx] = '\0';
-            last = '\0';
-            return 1;
+            else
+            {
+                last = '\0';
+                d[idx] = '\0';
+                return ErrorFormat_0;
+            }
         }
-        else if (L == '\n' || L == '\0')  // error: hex-string missing one byte
+        else if (L == '\n' || L == '\0')
         {
-            printf("Error: The length of the hex string should be a multiple of two.\n");
             last = '\0';
-            break;
+            d[idx] = '\0';
+            return ErrorFormat_1;
         }
         else if (isxdigit(H) && isxdigit(L))
         {
-            last = hexchartohex(L)|hexchartohex(H)<<4;
-            if (last == '\0' || isprint(last))
+            last = HexcharToHex(L)|HexcharToHex(H)<<4;
+            if (isprint(last) || last == '\0' || last == '\t' || last == '\n')
             {
                 d[idx] = last;
             }
-            else  // error: invalid character.
+            else
             {
-                printf("Error: All input characters must be printable.\n");
                 last = '\0';
-                break;
+                d[idx] = '\0';
+                return InvalidPatten_0;
             }
         }
-        else  // error: hex-string contain illegal character
+        else
         {
-            printf("Error: The hex-string contain illegal character.\n");
             last = '\0';
-            break;
+            d[idx] = '\0';
+            return InvalidCharacter_0;
         }
         idx++;
     }
-    d[idx] = '\0';
-    return 0;
+    return Continue;
 }
