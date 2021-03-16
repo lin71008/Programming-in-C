@@ -8,8 +8,8 @@
 
 int main()
 {
-    int Choice, n = 0;
-    char ibuffer[N], *token[N], key[N], obuffer[N] = {0};
+    int Choice;
+    char ibuffer[N], key[N];
 
     printf("Please enter the JSON string:\n");
     fgets(ibuffer, N, stdin);
