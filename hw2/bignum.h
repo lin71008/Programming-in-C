@@ -5,8 +5,8 @@
 
 typedef struct _sBigNum
 {
-    size_t size;
-    size_t max_size;
+    uint32_t size;
+    uint32_t max_size;
     int64_t *data;
 } sBigNum;
 
@@ -18,7 +18,7 @@ extern int32_t compare(const sBigNum num01, const sBigNum num02);
 
 extern int32_t digits(const sBigNum num);
 
-extern void add(sBigNum *pResult, const sBigNum num01, const sBigNumnum02);
+extern void add(sBigNum *pResult, const sBigNum num01, const sBigNum num02);
 
 extern void subtract(sBigNum *pResult, const sBigNum num01, const sBigNum num02);
 
