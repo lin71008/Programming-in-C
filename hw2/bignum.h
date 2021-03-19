@@ -5,9 +5,9 @@
 
 typedef struct _sBigNum
 {
-    uint32_t size;
-    uint32_t max_size;
-    int64_t *data;
+    uint32_t sign: 1;  // 0: positive, 1: negative
+    uint32_t size: 31;  // a_0, a_1, ... a_size, range: 0 ~ 2^28 (theory)
+    uint64_t *data;  // a_i = c_(18*i)*10^(18*i) + ... c_(18*i+17)*10**(18*i+17)
 } sBigNum;
 
 extern void print(const sBigNum num);

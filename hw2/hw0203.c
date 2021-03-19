@@ -54,28 +54,28 @@ void uByte_flip(uByte *b, const int idx)
     switch (idx)
     {
         case 1:
-            b->bits.b8 = b->bits.b8 ^ 1;
+            b->bits.b8 = 1 - b->bits.b8;
         break;
         case 2:
-            b->bits.b7 = b->bits.b7 ^ 1;
+            b->bits.b7 = 1 - b->bits.b7;
         break;
         case 3:
-            b->bits.b6 = b->bits.b6 ^ 1;
+            b->bits.b6 = 1 - b->bits.b6;
         break;
         case 4:
-            b->bits.b5 = b->bits.b5 ^ 1;
+            b->bits.b5 = 1 - b->bits.b5;
         break;
         case 5:
-            b->bits.b4 = b->bits.b4 ^ 1;
+            b->bits.b4 = 1 - b->bits.b4;
         break;
         case 6:
-            b->bits.b3 = b->bits.b3 ^ 1;
+            b->bits.b3 = 1 - b->bits.b3;
         break;
         case 7:
-            b->bits.b2 = b->bits.b2 ^ 1;
+            b->bits.b2 = 1 - b->bits.b2;
         break;
         case 8:
-            b->bits.b1 = b->bits.b1 ^ 1;
+            b->bits.b1 = 1 - b->bits.b1;
         break;
         default:
         break;

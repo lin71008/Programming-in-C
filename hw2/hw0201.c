@@ -18,8 +18,8 @@ int main()
     rational_sub(&ans, a, b);
     mixed_print(ans);
 
-    mixed_set(&a, 1, 0, 0);
-    mixed_set(&b, 1, 0, 0);
+    mixed_set(&a, 9, 9, 10);
+    mixed_set(&b, 5, 5, 21);
 
     rational_mul(&ans, a, b);
     mixed_print(ans);
