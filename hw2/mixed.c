@@ -37,7 +37,7 @@ int mixed_print(const sMixedNumber number)
     return 0;
 }
 
-void rational_add(sMixedNumber *pNumber, const sMixedNumber r1, const sMixedNumber r2)
+void mixed_add(sMixedNumber *pNumber, const sMixedNumber r1, const sMixedNumber r2)
 {
     if (pNumber == NULL) return;
 
@@ -64,7 +64,7 @@ void rational_add(sMixedNumber *pNumber, const sMixedNumber r1, const sMixedNumb
     if (pNumber->b == 0) pNumber->c = 0;
 }
 
-void rational_sub(sMixedNumber *pNumber, const sMixedNumber r1, const sMixedNumber r2)
+void mixed_sub(sMixedNumber *pNumber, const sMixedNumber r1, const sMixedNumber r2)
 {
     if (pNumber == NULL) return;
 
@@ -91,7 +91,7 @@ void rational_sub(sMixedNumber *pNumber, const sMixedNumber r1, const sMixedNumb
     if (pNumber->b == 0) pNumber->c = 0;
 }
 
-void rational_mul( sMixedNumber *pNumber, const sMixedNumber r1, const sMixedNumber r2)
+void mixed_mul( sMixedNumber *pNumber, const sMixedNumber r1, const sMixedNumber r2)
 {
     if (pNumber == NULL) return;
 
@@ -122,7 +122,7 @@ void rational_mul( sMixedNumber *pNumber, const sMixedNumber r1, const sMixedNum
     if (pNumber->b == 0) pNumber->c = 0;
 }
 
-void rational_div( sMixedNumber *pNumber , const sMixedNumber r1, const sMixedNumber r2)
+void mixed_div( sMixedNumber *pNumber , const sMixedNumber r1, const sMixedNumber r2)
 {
    if (pNumber == NULL) return;
 

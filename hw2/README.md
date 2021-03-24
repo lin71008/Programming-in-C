@@ -7,6 +7,7 @@ Table of Contents
 * [Requirement](#requirement)
 * [Build](#build)
 * [Run](#run)
+* [Limitation](#limitation)
 * [Configuration](#configuration)
 * [Develop Note](Note.md)
 * [License](LICENSE)
@@ -34,6 +35,14 @@ Also supported `make test`, `make clean`.
 Run
 ---
 All executables accept no arguments, you can simply run in shell.
+
+Limitation
+----------
+### HW0201
+$0 < |a|, |b|, c < 2^32-1$
+
+### HW0204
+$\digit{(N)} < 2^32-1$
 
 Configuration
 -------------
