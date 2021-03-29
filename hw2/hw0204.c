@@ -41,15 +41,15 @@ int main()
     multiply(&ans, a, b);
     print(ans);
 
-    divide(&q, &r, a, b);
-    print(q);
-    print(r);
+    // divide(&q, &r, a, b);
+    // print(q);
+    // print(r);
 
-    power(&ans, 20, 10);
-    print(ans);
+    // power(&ans, 20, 10);
+    // print(ans);
 
-    combine(&ans, 20, 10);
-    print(ans);
+    // combine(&ans, 20, 10);
+    // print(ans);
 
     return 0;
 }
