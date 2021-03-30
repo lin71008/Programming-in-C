@@ -74,7 +74,8 @@ int32_t ubigger(const sBigNum num01, const sBigNum num02, const uint32_t bias)
     if (num01.size != (num02.size + bias)) return num01.size > (num02.size + bias);
     for (uint32_t i = 0; i < num02.size; ++i)
     {
-        if (num01.data[num01.size-1-i] < num02.data[num02.size-1-i]) return 0;
+        if (num01.data[num01.size-1-i] > num02.data[num02.size-1-i]) break;
+        else if (num01.data[num01.size-1-i] < num02.data[num02.size-1-i]) return 0;
     }
     return 1;
 }
@@ -120,15 +121,21 @@ static void _add(sBigNum *pResult, const sBigNum num01, const sBigNum num02, con
         pResult->data[i] = num01.data[i];
     }
 
-    for (uint32_t i = 0; i < num02.size; ++i)  // add
+    uint8_t buffer = 0;
+    for (uint32_t i = bias; i+1 < pResult->size; ++i)  // add & carry
     {
-        pResult->data[i+bias] = pResult->data[i+bias] + num02.data[i];
-    }
-
-    for (uint32_t i = 0; i+1 < pResult->size; ++i)  // carry
-    {
-        pResult->data[i+1] = pResult->data[i+1] + pResult->data[i] / 100;
-        pResult->data[i] = pResult->data[i] % 100;
+        if (i < num02.size+bias)
+        {
+            buffer = (pResult->data[i] + num02.data[i-bias]);
+            pResult->data[i] = buffer % 100;
+            pResult->data[i+1] += buffer / 100;
+        }
+        else
+        {
+            buffer = pResult->data[i];
+            pResult->data[i] = buffer % 100;
+            pResult->data[i+1] += buffer / 100;
+        }
     }
 
     if (pResult->data[pResult->size-1] == 0)  // remove unused
@@ -259,9 +266,9 @@ void multiply(sBigNum *pResult, const sBigNum num01, const sBigNum num02)
     pResult->sign = num01.sign ^ num02.sign;
 
     pResult->size = 0;
-    pResult->data = (uint8_t*) malloc((num01.size + num02.size) * sizeof(uint8_t));
+    pResult->data = (uint8_t*) malloc((num01.size + num02.size + 1) * sizeof(uint8_t));
     if (pResult->data == NULL) return;  // run out of memory.
-    pResult->size = (num01.size + num02.size);
+    pResult->size = (num01.size + num02.size + 1);
 
     for (uint32_t i = 0; i < pResult->size; ++i)  // initial
     {
@@ -278,24 +285,13 @@ void multiply(sBigNum *pResult, const sBigNum num01, const sBigNum num02)
 
     for (uint32_t i = 0; i < num02.size; ++i)  // multiply
     {
-        for (uint32_t j = 0; j < num03.size; ++j)  // initial
+        num03.data[0] = 0;
+        for (uint32_t j = 0; j < num01.size; ++j)
         {
-            num03.data[j] = 0;
+            uint16_t buffer = ((uint16_t) num03.data[j]) + ((uint16_t) num01.data[j]) * ((uint16_t) num02.data[i]);
+            num03.data[j] = buffer % 100;
+            num03.data[j+1] = buffer / 100;
         }
-
-        num03.data[0] = ((uint16_t) num01.data[0]) * ((uint16_t) num02.data[i]) % 100;
-        for (uint32_t j = 1; j < num01.size; ++j)
-        {
-            num03.data[j] = ((uint16_t) num01.data[j]) * ((uint16_t) num02.data[i]) % 100;
-            num03.data[j] += ((uint16_t) num01.data[j-1]) * ((uint16_t) num02.data[i]) / 100;
-        }
-
-        for (uint32_t j = 0; j+1 < num03.size; ++j)  // carry
-        {
-            num03.data[i+1] = num03.data[i+1] + num03.data[i] / 100;
-            num03.data[i] = num03.data[i] % 100;
-        }
-
         _add(pResult, *pResult, num03, i);
     }
 
@@ -343,78 +339,130 @@ void divide(sBigNum *pQuotient, sBigNum *pRemainder, const sBigNum num01, const 
 
     else
     {
-        // sBigNum pTemp;
+        pQuotient->sign = num01.sign ^ num02.sign;
+        pRemainder->sign = num01.sign;
 
-        // pQuotient->sign = num01.sign ^ num02.sign;
-        // pRemainder->sign = num01.sign ^ num02.sign;
+        pQuotient->size = 0;
+        pQuotient->data = (uint8_t*) malloc((num01.size - num02.size + 1) * sizeof(uint8_t));
+        if (pQuotient->data == NULL) return;  // run out of memory.
+        pQuotient->size = (num01.size - num02.size + 1);
 
-        // pQuotient->size = 0;
-        // pQuotient->data = (uint8_t*) malloc((num01.size - num02.size + 1) * sizeof(uint8_t));
-        // if (pQuotient->data == NULL) return;  // run out of memory.
-        // pQuotient->size = (num01.size - num02.size + 1);
+        pRemainder->size = 0;
+        pRemainder->data = (uint8_t*) malloc(num01.size * sizeof(uint8_t));
+        if (pRemainder->data == NULL) return;  // run out of memory.
+        pRemainder->size = num01.size;
 
-        // pRemainder->size = 0;
-        // pRemainder->data = (uint8_t*) malloc(num01.size * sizeof(uint8_t));
-        // if (pRemainder->data == NULL) return;  // run out of memory.
-        // pRemainder->size = num01.size;
+        for (uint32_t i = 0; i < pQuotient->size; ++i)
+        {
+            pQuotient->data[i] = 0;
+        }
 
-        // pTemp.size = 0;
-        // pTemp.data = (uint8_t*) malloc((num02.size + 1) * sizeof(uint8_t));
-        // if (pTemp.data == NULL) return;  // run out of memory.
-        // pTemp.size = (num02.size + 1);
+        for (uint32_t i = 0; i < pRemainder->size; ++i)
+        {
+            pRemainder->data[i] = num01.data[i];
+        }
 
-        // for (uint32_t i = 0; i < pQuotient->size; ++i)
-        // {
-        //     pQuotient->data[i] = 0;
-        // }
+        sBigNum num03;
 
-        // for (uint32_t i = 0; i < pRemainder->size; ++i)
-        // {
-        //     pRemainder->data[i] = num01.data[i];
-        // }
+        num03.size = 0;
+        num03.data = (uint8_t*) malloc((num02.size + 1) * sizeof(uint8_t));
+        if (num03.data == NULL) return;  // run out of memory.
 
-        // for (uint32_t i = 0; i < num02.size; ++i)
-        // {
+        for (uint32_t i = 0; i+num02.size <= num01.size; ++i)
+        {
+            for (uint32_t j = 0; j < 7; ++j)
+            {
+                num03.size = (num02.size + 1);
 
-        //     uint32_t buffer = 0;
-        //     // printf("D= %d", num02.data[i]);
-        //     for (uint32_t k = 6; k + 1 > 0; --k)
-        //     {
-        //         for (uint32_t j = 0; j < pTemp.size; ++j)  // initial
-        //         {
-        //             pTemp.data[j] = 0;
-        //         }
+                num03.data[0] = 0;
+                for (uint32_t k = 0; k < num02.size; ++k)
+                {
+                    uint16_t buffer = ((uint16_t) num03.data[k]) + (1 << (6 - j)) * ((uint16_t) num02.data[k]);
+                    num03.data[k] = buffer % 100;
+                    num03.data[k+1] = buffer / 100;
+                }
+                if (num03.data[num03.size-1] == 0) num03.size = num03.size - 1;
 
-        //         pTemp.data[0] = ((uint16_t) num02.data[0]) * ((uint16_t) k) % 100;  // multiply
-        //         for (uint32_t j = 1; j < num02.size; ++j)
-        //         {
-        //             pTemp.data[j] = ((uint16_t) num02.data[j]) * ((uint16_t) k) % 100;
-        //             pTemp.data[j] += ((uint16_t) num02.data[j-1]) * ((uint16_t) k) / 100;
-        //         }
+                if (ubigger(*pRemainder, num03, num01.size-num02.size-i))
+                {
+                    pQuotient->data[num01.size - num02.size - i] += (1 << (6 - j));
+                    _sub(pRemainder, *pRemainder, num03, num01.size-num02.size-i);
+                }
+            }
+        }
+        uint32_t unused = 0;  // remove unused
+        for (uint32_t i = 0; i+1 < pQuotient->size; ++i)
+        {
+            if (pQuotient->data[pQuotient->size-1-i] == 0) unused = unused + 1;
+            else break;
+        }
 
-        //         for (uint32_t j = 0; j+1 < pTemp.size; ++j)  // carry
-        //         {
-        //             pTemp.data[i+1] = pTemp.data[i+1] + pTemp.data[i] / 100;
-        //             pTemp.data[i] = pTemp.data[i] % 100;
-        //         }
-        //         if (num02.data[i] >= buffer + (1 << j))
-        //         {
-        //             buffer = buffer + (1 << j);
-        //         }
-        //         printf(" %d ", (1 << j));
-        //     }
-        //     printf("\n");
-        //     printf("%d\n", buffer);
-        // }
+        pQuotient->size = pQuotient->size - unused;
+        pQuotient->data = (uint8_t*) realloc(pQuotient->data, pQuotient->size*sizeof(uint8_t));
 
+        unused = 0;
+        for (uint32_t i = 0; i+1 < pRemainder->size; ++i)
+        {
+            if (pRemainder->data[pRemainder->size-1-i] == 0) unused = unused + 1;
+            else break;
+        }
+
+        pRemainder->size = pRemainder->size - unused;
+        pRemainder->data = (uint8_t*) realloc(pRemainder->data, pRemainder->size*sizeof(uint8_t));
+
+        if (pRemainder->data[pRemainder->size-1] == 0) pRemainder->sign = 0;  // deal with -0 issue.
     }
 }
 
 int32_t power(sBigNum *pResult, int32_t n, int32_t k)
 {
-    if (pResult == NULL) return 1;
+    if (pResult == NULL || k < 0) return 1;
     // if (pResult->data != NULL) free(pResult->data);
 
+    pResult->sign = 0;
+
+    pResult->size = 0;
+    pResult->data = (uint8_t*) malloc(sizeof(uint8_t));
+    if (pResult->data == NULL) return -1;  // run out of memory
+    pResult->size = 1;
+
+    pResult->data[0] = 1;
+
+    sBigNum num03;
+
+    num03.sign = n < 0;
+    if (n < 0) n = -n;
+
+    num03.size = 0;
+    num03.data = (uint8_t*) malloc(6 * sizeof(uint8_t));
+    if (num03.data == NULL) return -1;  // run out of memory.
+    num03.size = 6;
+
+    for (uint32_t i = 0; i < num03.size; ++i)  // initial
+    {
+        num03.data[i] = n % 100;
+        n = n / 100;
+    }
+
+    uint32_t unused = 0;  // remove unused
+    for (uint32_t i = 0; i+1 < num03.size; ++i)
+    {
+        if (num03.data[num03.size-1-i] == 0) unused = unused + 1;
+        else break;
+    }
+
+    num03.size = num03.size - unused;
+    num03.data = (uint8_t*) realloc(num03.data, num03.size*sizeof(uint8_t));
+
+    for (uint32_t i = 0; i < 32 && k > 0; ++i)
+    {
+        if (k & 1)
+        {
+            multiply(pResult, *pResult, num03);
+        }
+        multiply(&num03, num03, num03);
+        k = k >> 1;
+    }
     return 0;
 }
 
@@ -424,3 +472,5 @@ int32_t combine(sBigNum *pResult, int32_t n, int32_t k)
     // if (pResult->data != NULL) free(pResult->data);
     return 0;
 }
+
+
