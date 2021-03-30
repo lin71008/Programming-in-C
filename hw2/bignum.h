@@ -20,6 +20,9 @@ extern void print(const sBigNum num);
 extern int32_t set(sBigNum *pNum, char *str);
 // return 0 if success
 
+extern int32_t set_int(sBigNum *pNum, int32_t n);
+// return 0 if success
+
 extern int32_t compare(const sBigNum num01, const sBigNum num02);
 // return 1 if num01 equal to num02
 

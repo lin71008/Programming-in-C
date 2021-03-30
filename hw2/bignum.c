@@ -59,6 +59,37 @@ int32_t set(sBigNum *pNum, char *str)
     return 0;
 }
 
+int32_t set_int(sBigNum *pNum, int32_t n)
+{
+    if (pNum == NULL) return -1;
+
+    pNum->sign = n < 0;
+    if (n < 0) n = -n;
+
+    pNum->size = 0;
+    pNum->data = (uint8_t*) malloc(6 * sizeof(uint8_t));
+    if (pNum->data == NULL) return -1;  // run out of memory.
+    pNum->size = 6;
+
+    for (uint32_t i = 0; i < pNum->size; ++i)  // initial
+    {
+        pNum->data[i] = n % 100;
+        n = n / 100;
+    }
+
+    uint32_t unused = 0;  // remove unused
+    for (uint32_t i = 0; i+1 < pNum->size; ++i)
+    {
+        if (pNum->data[pNum->size-1-i] == 0) unused = unused + 1;
+        else break;
+    }
+
+    pNum->size = pNum->size - unused;
+    pNum->data = (uint8_t*) realloc(pNum->data, pNum->size*sizeof(uint8_t));
+
+    return 0;
+}
+
 int32_t compare(const sBigNum num01, const sBigNum num02)
 {
     if (num01.sign != num02.sign || num01.size != num02.size) return 0;
@@ -430,29 +461,7 @@ int32_t power(sBigNum *pResult, int32_t n, int32_t k)
 
     sBigNum num03;
 
-    num03.sign = n < 0;
-    if (n < 0) n = -n;
-
-    num03.size = 0;
-    num03.data = (uint8_t*) malloc(6 * sizeof(uint8_t));
-    if (num03.data == NULL) return -1;  // run out of memory.
-    num03.size = 6;
-
-    for (uint32_t i = 0; i < num03.size; ++i)  // initial
-    {
-        num03.data[i] = n % 100;
-        n = n / 100;
-    }
-
-    uint32_t unused = 0;  // remove unused
-    for (uint32_t i = 0; i+1 < num03.size; ++i)
-    {
-        if (num03.data[num03.size-1-i] == 0) unused = unused + 1;
-        else break;
-    }
-
-    num03.size = num03.size - unused;
-    num03.data = (uint8_t*) realloc(num03.data, num03.size*sizeof(uint8_t));
+    set_int(&num03, n);
 
     for (uint32_t i = 0; i < 32 && k > 0; ++i)
     {
@@ -468,8 +477,29 @@ int32_t power(sBigNum *pResult, int32_t n, int32_t k)
 
 int32_t combine(sBigNum *pResult, int32_t n, int32_t k)
 {
-    if (pResult == NULL) return 1;
-    // if (pResult->data != NULL) free(pResult->data);
+    if (pResult == NULL || n < 0 || k < 0 || k > n) return 1;
+
+    pResult->sign = 0;
+
+    pResult->size = 0;
+    pResult->data = (uint8_t*) malloc(sizeof(uint8_t));
+    if (pResult->data == NULL) return -1;  // run out of memory
+    pResult->size = 1;
+
+    pResult->data[0] = 1;
+
+    sBigNum num03, num04;
+
+    for (int32_t i = 0; i < k; ++i)
+    {
+        set_int(&num03, n-i);
+        multiply(pResult, *pResult, num03);
+    }
+    for (int32_t i = 0; i < k; ++i)
+    {
+        set_int(&num03, k-i);
+        divide(pResult, &num04, *pResult, num03);
+    }
     return 0;
 }
 

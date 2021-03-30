@@ -38,7 +38,7 @@ TIMELIMIT = 1.00s
 $(EXEC): FORCE
 	@echo "=== Start test program $@"
 	@echo "=== Test with example input"
-	@head -n 10 $(TFI)
+	@head -c 300 $(TFI)
 	@echo "=== Result"
 	@timeout -k 9 $(TIMELIMIT) ./$@ <$(TFI) |diff - $(TFO) --color=always -B -w -s
 	@echo "================================"
