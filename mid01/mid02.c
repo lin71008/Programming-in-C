@@ -8,21 +8,21 @@
 #pragma pack(1)
 typedef struct _sBmpHeader
 {
-    char        bm[2];
-    uint32_t    size;
-    uint32_t    reserve;
-    uint32_t    offset;
-    uint32_t    header_size;
-    int32_t    width;
-    int32_t    height;
-    uint16_t    planes;
-    uint16_t    bpp;
-    uint32_t    compression;
-    uint32_t    bitmap_size;
-    int32_t    hres;
-    int32_t    vres;
-    uint32_t    used;
-    uint32_t    important;
+    char     bm[2];
+    uint32_t size;
+    uint32_t reserve;
+    uint32_t offset;
+    uint32_t header_size;
+    int32_t  width;
+    int32_t  height;
+    uint16_t planes;
+    uint16_t bpp;
+    uint32_t compression;
+    uint32_t bitmap_size;
+    int32_t  hres;
+    int32_t  vres;
+    uint32_t used;
+    uint32_t important;
 } sBmpHeader;
 #pragma pack(pop)
 
@@ -45,6 +45,151 @@ void print_bmp_header(sBmpHeader *pHeader)
     printf("Important Colors: %u\n", pHeader -> important);
 }
 
+void sBmpHeader_resize(sBmpHeader *header, const uint32_t h, const uint32_t w)
+{
+    int32_t padding = (32 - ((w * header->bpp) % 32)) % 32;
+
+    header->height = h;
+    header->width = w;
+    header->bitmap_size = h * (w * header->bpp + padding) / 8;
+    header->size = header->offset + header->bitmap_size;
+}
+
+void print_binary(uint32_t n)
+{
+    for (size_t i = 0; i < 32; ++i)
+    {
+        if (i && i % 4 == 0) printf(" ");
+        if (n & (1 << (31 - i))) printf("1");
+        else printf("0");
+    }
+    printf("\n");
+}
+
+#pragma pack(push)
+#pragma pack(1)
+typedef struct _sBitMap
+{
+    FILE *file;
+    sBmpHeader *header;
+    uint32_t offset;
+    uint32_t bpp;
+    uint32_t height;  // [row]
+    uint32_t width;  // [pixle]
+    uint32_t padding;  // [bits]
+} sBitMap;
+#pragma pack(pop)
+
+void print_sBitMap_info(sBitMap* bm)
+{
+    printf("Offset: %u\n", bm->offset);
+    printf("Bits per pixle: %u\n", bm->bpp);
+    printf("Height (row): %u\n", bm->height);
+    printf("Width (pixle): %u\n", bm->width);
+    printf("Padding (bits): %u\n", bm->padding);
+}
+
+void sBitMap_init(sBitMap *bm, FILE *file, sBmpHeader *header)
+{
+    bm->file = file;
+    bm->header = header;
+    bm->offset = header->offset;
+    bm->bpp = header->bpp;
+    bm->height = abs(header->height);
+    bm->width = abs(header->width);
+    bm->padding = (32 - ((bm->width * bm->bpp) % 32)) % 32;
+}
+
+void sBitMap_init_empty(sBitMap *bm, FILE *file, sBmpHeader *header)
+{
+    bm->file = file;
+    bm->header = header;
+    bm->offset = header->offset;
+    bm->bpp = header->bpp;
+    bm->height = abs(header->height);
+    bm->width = abs(header->width);
+    bm->padding = (32 - ((bm->width * bm->bpp) % 32)) % 32;
+
+    fseek(bm->file, 0, SEEK_SET);
+    fwrite(bm->header, sizeof(sBmpHeader), 1, bm->file);
+
+    uint8_t empty_bytes[1000];
+
+    // default color setting
+    memset(empty_bytes, 255, sizeof(uint8_t) * 1000);
+
+    int64_t empty_bytes_amount = bm->header->bitmap_size;
+
+    while (empty_bytes_amount > 1000)
+    {
+        fwrite(empty_bytes, sizeof(uint8_t), 1000, bm->file);
+        empty_bytes_amount = empty_bytes_amount - 1000;
+    }
+
+    fwrite(empty_bytes, sizeof(uint8_t), empty_bytes_amount, bm->file);
+}
+
+// (R, G, B, A)
+#define DEFAULT_COLOR {255, 255, 255, 255}
+
+uint32_t sBitMap_get_pixel(sBitMap *bm, const uint32_t h, const uint32_t w)
+{
+    uint32_t Pixel = 0;
+    uint8_t iPixel[4] = DEFAULT_COLOR;
+    uint32_t Mask = (((1 << bm->bpp) - 1) << (32 - bm->bpp));
+
+    Pixel = (iPixel[0] << 24) | (iPixel[1] << 16) | (iPixel[2] << 8) | (iPixel[3] << 0);
+
+    if (h < bm->height && w < bm->width)
+    {
+
+        fseek(bm->file, bm->header->offset \
+                        + (h * (bm->bpp * bm->width + bm->padding) / 8) \
+                        + ((size_t) ((w * bm->bpp) / 8))\
+                        , SEEK_SET);
+        fread(iPixel, sizeof(uint8_t), ((size_t) ((bm->bpp + 7) / 8)), bm->file);
+
+        Pixel = (iPixel[0] << 24) | (iPixel[1] << 16) | (iPixel[2] << 8) | (iPixel[3] << 0);
+        Pixel = Pixel & (Mask >> ((bm->bpp * w) % 8));
+
+        // printf("pF: %8ld, s = %u, pixle = %08x\n", ftell(bm->file), ((size_t) ((bm->bpp + 7) / 8)), Pixel);
+    }
+    return Pixel;
+}
+
+void sBitMap_set_pixel(sBitMap *bm, const uint32_t h, const uint32_t w, const uint32_t pixle)
+{
+    uint32_t Pixel = 0;
+    uint8_t iPixel[4] = {0, 0, 0, 0};
+    uint32_t Mask = (((1 << bm->bpp) - 1) << (32 - bm->bpp));
+
+    if (h < bm->height && w < bm->width)
+    {
+        fseek(bm->file, bm->header->offset \
+                        + (h * (bm->bpp * bm->width + bm->padding) / 8) \
+                        + ((size_t) ((w * bm->bpp) / 8))\
+                        , SEEK_SET);
+        fread(iPixel, sizeof(uint8_t), ((size_t) ((bm->bpp + 7) / 8)), bm->file);
+
+        Pixel = (iPixel[0] << 24) | (iPixel[1] << 16) | (iPixel[2] << 8) | (iPixel[3] << 0);
+        Pixel = (Pixel & (0xFFFFFFFF ^ Mask)) | pixle;
+
+        fseek(bm->file, bm->header->offset \
+                        + (h * (bm->bpp * bm->width + bm->padding) / 8) \
+                        + ((size_t) ((w * bm->bpp) / 8))\
+                        , SEEK_SET);
+
+        // printf("pF: %8ld, s = %u, pixle = %08x\n", ftell(bm->file), ((size_t) ((bm->bpp + 7) / 8)), Pixel);
+
+        iPixel[0] = (Pixel & 0xFF000000) >> 24;
+        iPixel[1] = (Pixel & 0x00FF0000) >> 16;
+        iPixel[2] = (Pixel & 0x0000FF00) >>  8;
+        iPixel[3] = (Pixel & 0x000000FF) >>  0;
+
+        fwrite(iPixel, sizeof(uint8_t), ((size_t) ((bm->bpp + 7) / 8)), bm->file);
+    }
+}
+
 #pragma pack(push)
 #pragma pack(1)
 typedef struct _sPointer
@@ -54,29 +199,37 @@ typedef struct _sPointer
 } sPointer;
 #pragma pack(pop)
 
-sPointer Rotate_sPointer(const sPointer P, const double radian)
+static inline sPointer sPointer_rotate(const sPointer P, const double radian)
 {
     sPointer Q = {0.0, 0.0};
 
-    Q.x = cos(radian) * P.x - sin(radian) * P.y;
-    Q.y = sin(radian) * P.x + cos(radian) * P.y;
+    Q.x =  cos(radian) * P.x + sin(radian) * P.y;
+    Q.y = -sin(radian) * P.x + cos(radian) * P.y;
 
     return Q;
 }
 
-static inline double min(double a, double b)
+static inline double dmin(double x, double y)
 {
-    return a < b ? a : b;
+    return x < y ? x : y;
 }
 
-static inline double max(double a, double b)
+static inline void sPointer_owo(sPointer *Result, const sPointer S[4])
 {
-    return a > b ? a : b;
+    for (size_t i = 0; i < 4; ++i)
+    {
+        if (S[i].x < Result[0].x) Result[0].x = S[i].x;
+        if (S[i].y < Result[0].y) Result[0].y = S[i].y;
+
+        if (S[i].x > Result[1].x) Result[1].x = S[i].x;
+        if (S[i].y > Result[1].y) Result[1].y = S[i].y;
+    }
 }
 
 int main(void)
 {
     char iBuffer[1024] = {0};
+    double radian = 0.0;
     int angle = 0;
 
     printf("Please enter the file name: ");
@@ -84,11 +237,13 @@ int main(void)
     fgets(iBuffer, 1024, stdin);
     if (iBuffer[strlen(iBuffer)-1] == '\n') iBuffer[strlen(iBuffer)-1] = '\0';
 
-    printf("Rotation angle (int , 0 -360): ");
+    printf("Rotation angle (int , 0 ~ 360): ");
     scanf("%d", &angle);
 
-    FILE    *pFile = NULL;
-    FILE    *pFile2 = NULL;
+    radian = ((double) angle) / 180.0 * M_PI;
+
+    FILE *pFile = NULL;
+    FILE *pFile2 = NULL;
 
     if ((pFile = fopen(iBuffer, "rb")) == NULL)
     {
@@ -96,94 +251,58 @@ int main(void)
         return 0;
     }
 
-    if ((pFile2 = fopen("output.bmp", "wb")) == NULL)
+    if ((pFile2 = fopen("output.bmp", "wb+")) == NULL)
     {
         printf("File could not be opened!\n");
         return 0;
     }
 
-    sBmpHeader  header;
-    fread(&header, sizeof(header), 1, pFile);
+    sBmpHeader original_header;
+    fread(&original_header, sizeof(sBmpHeader), 1, pFile);
+    // print_bmp_header(&original_header);
 
-    int32_t original_heigh = header.height;
-    int32_t original_width = header.width;
-    int32_t original_padding = (4 - ((original_width * 3) % 4)) % 4;
+    sBitMap original_bitmap;
+    sBitMap_init(&original_bitmap, pFile, &original_header);
+    // print_sBitMap_info(&original_bitmap);
 
-    double radian = ((double) -angle) * M_PI / 180.0;
+    sPointer Vertex[4] = {sPointer_rotate(((sPointer) {original_bitmap.width, original_bitmap.height}), -radian), \
+                          sPointer_rotate(((sPointer) {original_bitmap.width,                    0.0}), -radian), \
+                          sPointer_rotate(((sPointer) {                  0.0, original_bitmap.height}), -radian), \
+                          sPointer_rotate(((sPointer) {                  0.0,                    0.0}), -radian)};
 
-    int32_t modified_heigh = original_heigh * fabs(cos(radian)) + original_width * fabs(sin(radian));
-    int32_t modified_width = original_heigh * fabs(sin(radian)) + original_width * fabs(cos(radian));
-    int32_t modified_padding = (4 - ((modified_width * 3) % 4)) % 4;
+    sPointer Range[2];
+    sPointer_owo(Range, Vertex);
+    // button left corner, top right corner
 
-    header.height = modified_heigh;
-    header.width = modified_width;
-
-    fwrite(&header, sizeof(header), 1, pFile2);
-
-    uint8_t Pixel[3] = {255, 255, 255};
-
-    double point_x[] = {  cos(radian) * 0.0            + sin(radian) * 0.0,
-                          cos(radian) * original_width + sin(radian) * 0.0,
-                          cos(radian) * 0.0            + sin(radian) * original_heigh,
-                          cos(radian) * original_width + sin(radian) * original_heigh };
-
-    double point_y[] = { -sin(radian) * 0.0            + cos(radian) * 0.0,
-                         -sin(radian) * original_width + cos(radian) * 0.0,
-                         -sin(radian) * 0.0            + cos(radian) * original_heigh,
-                         -sin(radian) * original_width + cos(radian) * original_heigh };
-
-    double modified_origin_x = min(min(point_x[0], point_x[1]), min(point_x[2], point_x[3]));
-    double modified_origin_y = max(max(point_y[0], point_y[1]), max(point_y[2], point_y[3]));
-
-    for (int32_t i = 0; i < modified_heigh; ++i)
-    {
-        for (int32_t j = 0; j < modified_width; ++j)
-        {
-            fwrite(Pixel, sizeof(uint8_t), 3, pFile2);
-        }
-        fwrite(Pixel, sizeof(uint8_t), modified_padding, pFile2);
-    }
-
-    fseek(pFile2, header.offset, SEEK_SET);
-    for (int32_t i = 0; i < original_heigh; ++i)
-    {
-        for (int32_t j = 0; j < original_width; ++j)
-        {
-            fread(Pixel, sizeof(uint8_t), 3, pFile);
-
-            double modified_x =  cos(radian) * j + sin(radian) * i;
-            double modified_y = -sin(radian) * j + cos(radian) * i;
-
-            double modified_real_x = modified_x - modified_origin_x;
-            double modified_real_y = modified_heigh - (modified_origin_y - modified_y);
-
-            fseek(pFile2, header.offset + ((3 * modified_width + modified_padding) * ((int) modified_real_y)) + (3 * ((int) modified_real_x)), SEEK_SET);
-            fwrite(Pixel, sizeof(uint8_t), 3, pFile2);
-        }
-        fread(Pixel, sizeof(uint8_t), original_padding, pFile);
-    }
-
-    // for (int32_t i = 0; i < modified_heigh; ++i)
+    // for (int i = 0; i < 4; ++i)
     // {
-    //     for (int32_t j = 0; j < modified_width; ++j)
-    //     {
-    //         double original_x = cos(radian) * (modified_origin_x + j) - sin(radian) * (modified_origin_y - i);
-    //         double original_y = sin(radian) * (modified_origin_x + j) + cos(radian) * (modified_origin_y - i);
-    //         if (0 <= original_x && original_x < original_width && 0 <= original_y && original_y < original_heigh)
-    //         {
-    //             fseek(pFile, header.offset + (original_width * 3 + original_padding) * ((int) (original_heigh - original_y)) + 3 * ((int) original_x), SEEK_SET);
-    //             fread(Pixel, sizeof(uint8_t), 3, pFile);
-    //             fwrite(Pixel, sizeof(uint8_t), 3, pFile2);
-    //         }
-    //         else
-    //         {
-    //             Pixel[0] = 255, Pixel[1] = 255, Pixel[2] = 255;
-    //             fwrite(Pixel, sizeof(uint8_t), 3, pFile2);
-    //         }
-    //     }
-    //     Pixel[0] = 0, Pixel[1] = 0, Pixel[2] = 0;
-    //     fwrite(Pixel, sizeof(uint8_t), modified_padding, pFile2);
+    //     printf("(%lf, %lf)\n", Vertex[i].x, Vertex[i].y);
     // }
+    // printf("(%lf, %lf)\n", Range[0].x, Range[0].y);
+    // printf("(%lf, %lf)\n", Range[1].x, Range[1].y);
+
+    sBitMap modified_bitmap;
+    sBmpHeader modified_header = original_header;
+
+    sBmpHeader_resize(&modified_header, (Range[1].y - Range[0].y), (Range[1].x - Range[0].x));
+
+    // initial blank bmp file
+    sBitMap_init_empty(&modified_bitmap, pFile2, &modified_header);
+    // print_sBitMap_info(&modified_bitmap);
+
+    uint32_t Pixel = 0;
+
+    for (uint32_t h = 0; h < modified_bitmap.height; ++h)
+    {
+        for (uint32_t w = 0; w < modified_bitmap.width; ++w)
+        {
+            sPointer P = {w + Range[0].x + 0.5, h + Range[0].y + 0.5};
+            sPointer Q = sPointer_rotate(P, radian);
+
+            Pixel = sBitMap_get_pixel(&original_bitmap, Q.y, Q.x);
+            sBitMap_set_pixel(&modified_bitmap, h, w, Pixel);
+        }
+    }
 
     fclose(pFile);
     fclose(pFile2);

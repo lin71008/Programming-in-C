@@ -19,6 +19,14 @@ $(TARGETS): %: $(%)
 .PHONY: install test release
 FORCE:
 
+usage:
+	@echo "Usage: make [Options]"
+	@echo "Options:"
+	@echo "  all (default): Build all targets that listing below."
+	@echo "  	targets: $(TARGETS)"
+	@echo "  test: Testing all executable with example I/O in test folder."
+	@echo "  clean: remove all build result."
+
 install:
 	@echo "Nothing needs to be installed."
 
@@ -58,6 +66,7 @@ $(EXEC): FORCE
 			)\
 		)\
 	)
+	@echo ""
 	@echo "================================"
 
 test: $(EXEC)
@@ -67,15 +76,6 @@ test: $(EXEC)
 
 clean:
 	rm -f $(OBJECTS) $(EXEC)
-
-# %:
-# 	@echo "Usage: make [Options]"
-# 	@echo "Options:"
-# 	@echo "  all (default): \#*%\$*(%#%\#*"
-# 	@echo "  test: \#*%^**\$%\#*"
-# 	@echo "  target: \#*%^**\$%\#*"
-# 	@echo "    available value: "
-# 	@echo "  clean: \#*%^**\$%\#*"
 
 # ignore below
 
