@@ -5,11 +5,11 @@ LDFLAGS = -lm
 OBJECTS = $(patsubst %c, %o, $(wildcard *.c))
 TARGETS = hw0301 hw0302 hw0303 hw0304 hw0305 hw0306
 
-hw0301: hw0301.o
-hw0302: hw0302.o
-hw0303: hw0303.o
-hw0304: hw0304.o
-hw0305: hw0305.o
+hw0301: hw0301.o share.o
+hw0302: hw0302.o share.o csv.o
+hw0303: hw0303.o share.o bmp.o
+hw0304: hw0304.o share.o bmp.o
+hw0305: hw0305.o share.o
 hw0306: hw0306.o
 
 hw0301: TIMELIMIT = 5.0m
