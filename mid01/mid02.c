@@ -51,8 +51,8 @@ void sBmpHeader_resize(sBmpHeader *header, const uint32_t h, const uint32_t w)
 
     header->height = h;
     header->width = w;
-    header->bitmap_size = h * (w * header->bpp + padding) / 8;
-    header->size = header->offset + header->bitmap_size;
+    // header->bitmap_size = h * (w * header->bpp + padding) / 8;
+    // header->size = header->offset + header->bitmap_size;
 }
 
 void print_binary(uint32_t n)
@@ -129,39 +129,44 @@ void sBitMap_init_empty(sBitMap *bm, FILE *file, sBmpHeader *header)
     fwrite(empty_bytes, sizeof(uint8_t), empty_bytes_amount, bm->file);
 }
 
-// (R, G, B, A)
 #define DEFAULT_COLOR {255, 255, 255, 255}
 
 uint32_t sBitMap_get_pixel(sBitMap *bm, const uint32_t h, const uint32_t w)
 {
-    uint32_t Pixel = 0;
+    // uint8_t iPixel[((bm->bpp + 7) / 8)];
+    // memset(iPixel, 0, sizeof(iPixel));
     uint8_t iPixel[4] = DEFAULT_COLOR;
-    uint32_t Mask = (((1 << bm->bpp) - 1) << (32 - bm->bpp));
 
-    Pixel = (iPixel[0] << 24) | (iPixel[1] << 16) | (iPixel[2] << 8) | (iPixel[3] << 0);
+    uint32_t Pixel = 0;
+    uint32_t Mask = (1 | ((1 << (bm->bpp - 1)) - 1) << 1) << (32 - bm->bpp);
 
     if (h < bm->height && w < bm->width)
     {
-
         fseek(bm->file, bm->header->offset \
                         + (h * (bm->bpp * bm->width + bm->padding) / 8) \
                         + ((size_t) ((w * bm->bpp) / 8))\
                         , SEEK_SET);
         fread(iPixel, sizeof(uint8_t), ((size_t) ((bm->bpp + 7) / 8)), bm->file);
 
-        Pixel = (iPixel[0] << 24) | (iPixel[1] << 16) | (iPixel[2] << 8) | (iPixel[3] << 0);
-        Pixel = Pixel & (Mask >> ((bm->bpp * w) % 8));
+        for (size_t i = 0; i < ((bm->bpp + 7) / 8); ++i)
+        {
+            Pixel = Pixel | (iPixel[i] << (32 - 8 * (i + 1)));
+        }
 
-        // printf("pF: %8ld, s = %u, pixle = %08x\n", ftell(bm->file), ((size_t) ((bm->bpp + 7) / 8)), Pixel);
+        Mask = Mask >> ((bm->bpp * w) % 8);
+        Pixel = Pixel & Mask;
     }
     return Pixel;
 }
 
 void sBitMap_set_pixel(sBitMap *bm, const uint32_t h, const uint32_t w, const uint32_t pixle)
 {
-    uint32_t Pixel = 0;
+    // uint8_t iPixel[((bm->bpp + 7) / 8)];
+    // memset(iPixel, 0, sizeof(iPixel));
     uint8_t iPixel[4] = {0, 0, 0, 0};
-    uint32_t Mask = (((1 << bm->bpp) - 1) << (32 - bm->bpp));
+
+    uint32_t Pixel = 0;
+    uint32_t Mask = (1 | ((1 << (bm->bpp - 1)) - 1) << 1) << (32 - bm->bpp);
 
     if (h < bm->height && w < bm->width)
     {
@@ -171,20 +176,23 @@ void sBitMap_set_pixel(sBitMap *bm, const uint32_t h, const uint32_t w, const ui
                         , SEEK_SET);
         fread(iPixel, sizeof(uint8_t), ((size_t) ((bm->bpp + 7) / 8)), bm->file);
 
-        Pixel = (iPixel[0] << 24) | (iPixel[1] << 16) | (iPixel[2] << 8) | (iPixel[3] << 0);
-        Pixel = (Pixel & (0xFFFFFFFF ^ Mask)) | pixle;
+        for (size_t i = 0; i < ((bm->bpp + 7) / 8); ++i)
+        {
+            Pixel = Pixel | (iPixel[i] << (32 - 8 * (i + 1)));
+        }
+
+        Mask = Mask >> ((bm->bpp * w) % 8);
+        Pixel = (Pixel & (0xFFFFFFFF ^ Mask)) | (pixle & Mask);
 
         fseek(bm->file, bm->header->offset \
                         + (h * (bm->bpp * bm->width + bm->padding) / 8) \
                         + ((size_t) ((w * bm->bpp) / 8))\
                         , SEEK_SET);
 
-        // printf("pF: %8ld, s = %u, pixle = %08x\n", ftell(bm->file), ((size_t) ((bm->bpp + 7) / 8)), Pixel);
-
-        iPixel[0] = (Pixel & 0xFF000000) >> 24;
-        iPixel[1] = (Pixel & 0x00FF0000) >> 16;
-        iPixel[2] = (Pixel & 0x0000FF00) >>  8;
-        iPixel[3] = (Pixel & 0x000000FF) >>  0;
+        for (size_t i = 0; i < ((bm->bpp + 7) / 8); ++i)
+        {
+            iPixel[i] = (Pixel & (0xFF000000 >> (i << 3))) >> ((3-i) << 3);
+        }
 
         fwrite(iPixel, sizeof(uint8_t), ((size_t) ((bm->bpp + 7) / 8)), bm->file);
     }
