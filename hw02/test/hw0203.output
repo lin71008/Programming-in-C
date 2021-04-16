@@ -1,0 +1,4 @@
+Please enter a byte (0-255): Data: 255 11111111
+Flip bit (1-8, 0: exit): Data: 127 01111111
+Flip bit (1-8, 0: exit): Data: 255 11111111
+Flip bit (1-8, 0: exit): Bye
