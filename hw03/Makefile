@@ -12,10 +12,10 @@ hw0304: hw0304.o share.o bmp.o
 hw0305: hw0305.o share.o
 hw0306: hw0306.o
 
-hw0301: TIMELIMIT = 5.0m
+# hw0301: LDFLAGS += -lpthread
 
 $(OBJECTS): %o:%c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(LDFLAGS) $(CFLAGS) -c -o $@ $<
 
 $(TARGETS): %: $(%)
 	$(CC) $(LDFLAGS) -o $@ $^
@@ -48,7 +48,8 @@ TPATH = ./test
 TINPUT = $(patsubst %exe,$(TPATH)/%input,$@)
 TOUTPUT = $(patsubst %exe,$(TPATH)/%output,$@)
 
-EXEC = $(filter $(patsubst %,%.exe,$(TARGETS)),$(wildcard *.exe))
+# IGNOREEXEC = hw0301
+EXEC = $(filter $(patsubst %,%.exe,$(filter-out $(IGNOREEXEC),$(TARGETS))),$(wildcard *.exe))
 TIMELIMIT = 1.00s
 
 $(EXEC): TINPUTEXIST = $(shell test -a $(TINPUT) && echo "1")
@@ -62,7 +63,7 @@ $(EXEC): FORCE
 	)
 	$(if $(TINPUTEXIST),\
 		$(if $(TOUTPUTEXIST),\
-			@timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT)|diff - $(TOUTPUT) --color=always -B -w -s,\
+			timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT)|diff - $(TOUTPUT) --color=always -B -w -s,\
 			@echo "=== No example output";\
 			$(if $(shell eval timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT)),\
 				timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT) && echo "",\
@@ -70,7 +71,7 @@ $(EXEC): FORCE
 			)\
 		),\
 		$(if $(TOUTPUTEXIST),\
-			@timeout -k 9 $(TIMELIMIT) ./$@|diff - $(TOUTPUT) --color=always -B -w -s,\
+			timeout -k 9 $(TIMELIMIT) ./$@|diff - $(TOUTPUT) --color=always -B -w -s,\
 			@echo "=== No example output";\
 			$(if $(shell eval timeout -k 9 $(TIMELIMIT) ./$@),\
 				timeout -k 9 $(TIMELIMIT) ./$@ && echo "",\
@@ -84,6 +85,8 @@ test: $(EXEC)
 	@echo "$(EXEC)"
 	@echo "================================"
 	@echo "All program have been tested."
+
+test-$(patsubst %.exe,%,$(EXEC)): $(EXEC)
 
 clean:
 	rm -f $(OBJECTS) $(EXEC)
