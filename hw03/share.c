@@ -12,3 +12,15 @@ char* file_extension(const char *s)
     if (c != NULL && *c != '\0') return c+1;
     else return NULL;
 }
+
+int32_t check_file_extension(const char *f, const char *s)
+{
+    char *e = file_extension(f);
+    if (s == NULL || (e != NULL && strncmp(e, s, strlen(s)+1) == 0)) return 1;
+    else return 0;
+}
+
+// example code:
+// if (check_file_extension(f, e) != 1)  // File format not recognized.
+// if ((fp = fopen(f, m)) == NULL)  // strerror(errno).
+// fcolse(f);  // do not forget close

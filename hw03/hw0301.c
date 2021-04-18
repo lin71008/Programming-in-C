@@ -105,14 +105,13 @@ int main()
     fgets(FileName, 256, stdin);
     remove_newline(FileName);
 
-    if (file_extension(FileName) == NULL || strncmp("lrc", file_extension(FileName), 4) != 0)
+    if (check_file_extension(FileName, "lrc") == 0)
     {
         printf("Warning: File format not recognized.\n");
         return 0;
     }
 
     FILE *fp = NULL;
-
     if ((fp = fopen(FileName, "r")) == NULL)
     {
         printf("Error: File could not be opened.\n");
