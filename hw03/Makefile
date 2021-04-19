@@ -48,7 +48,7 @@ TPATH = ./test
 TINPUT = $(patsubst %exe,$(TPATH)/%input,$@)
 TOUTPUT = $(patsubst %exe,$(TPATH)/%output,$@)
 
-# IGNOREEXEC = hw0301
+IGNOREEXEC = hw0301
 EXEC = $(filter $(patsubst %,%.exe,$(filter-out $(IGNOREEXEC),$(TARGETS))),$(wildcard *.exe))
 TIMELIMIT = 1.00s
 
@@ -85,8 +85,6 @@ test: $(EXEC)
 	@echo "$(EXEC)"
 	@echo "================================"
 	@echo "All program have been tested."
-
-test-$(patsubst %.exe,%,$(EXEC)): $(EXEC)
 
 clean:
 	rm -f $(OBJECTS) $(EXEC)

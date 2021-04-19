@@ -20,7 +20,3 @@ int32_t check_file_extension(const char *f, const char *s)
     else return 0;
 }
 
-// example code:
-// if (check_file_extension(f, e) != 1)  // File format not recognized.
-// if ((fp = fopen(f, m)) == NULL)  // strerror(errno).
-// fcolse(f);  // do not forget close

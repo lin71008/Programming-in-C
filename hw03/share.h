@@ -20,4 +20,16 @@ extern char* file_extension(const char *s);
 //   2. $s == NULL
 extern int32_t check_file_extension(const char *f, const char *s);
 
+// usage example code:
+// remove_newline(f), ... etc.
+// if (check_file_extension(f, e) != 1)  // File format not recognized.
+// if ((fp = fopen(f, m)) == NULL)  // strerror(errno).
+// fcolse(f);  // do not forget close
+
+// char *buf = NULL;
+// size_t bufs = 0;
+// ssize_t len;
+// while ((len = getline(&buf, &bufs, fp)) != -1) ...
+
+
 #endif
