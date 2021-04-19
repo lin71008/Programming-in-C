@@ -134,7 +134,9 @@ int main()
 
     while ((read = getline(&line, &len, fp)) != -1)
     {
-        char lyrics[read];
+        char attr[read], value[read];
+        char singer[read], lyrics[read];
+
         if (sscanf(line, "[%d:%d.%d]%[^\n]", &m, &s, &x, lyrics) == 4)
         {
             int32_t delay = (60000*m+1000*s+x)-(60000*lm+1000*ls+lx);  // [ms]
@@ -148,12 +150,16 @@ int main()
             printf("%s\n", lyrics);
             lm = m, ls = s, lx = x;
         }
-        else if (line[read-2] == ':')
+        else if (sscanf(line, "[%[^:]:%[^]]]", attr, value) == 2)
+        {
+            // attribute: value
+        }
+        else if (sscanf(line, "%[^:]", singer) == 1)
         {
             flag = 1;
             for (int32_t i = 0; i < top && i < LyricsColor_MAX; ++i)
             {
-                if (strcmp(line, name_buffer[i]) == 0)
+                if (strcmp(singer, name_buffer[i]) == 0)
                 {
                     set_color(i);
                     flag = 0;
@@ -162,9 +168,14 @@ int main()
             }
             if (flag == 1)
             {
-                name_buffer[top++] = strdup(line);
+                name_buffer[top++] = strdup(singer);
                 set_color(top-1);
             }
+        }
+        else
+        {
+            // lyrics without time
+            printf("%s", line);
         }
     }
 
