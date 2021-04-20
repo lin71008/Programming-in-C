@@ -73,22 +73,28 @@ int main()
 
     // expand header size
     // add alpha channel bitmask to header
-    if (get_bmp_version(&header) < 3)
+    if (get_bmp_version(&header) < 4)
     {
-        header.file_header.offset += (56 - header.dib_header.header_size);
-        header.dib_header.header_size = 56;
+        header.file_header.offset += (108 - header.dib_header.header_size);
+        header.dib_header.header_size = 108;
 
-        header.dib_header.red_channel_bitmask = 0x00FF0000;
+        header.dib_header.compression = 3;  // !important
+        header.dib_header.red_channel_bitmask   = 0x00FF0000;
         header.dib_header.green_channel_bitmask = 0x0000FF00;
-        header.dib_header.blue_channel_bitmask = 0x000000FF;
+        header.dib_header.blue_channel_bitmask  = 0x000000FF;
         header.dib_header.alpha_channel_bitmask = 0x1F000000;
+
+        header.dib_header.color_space_type[0] = 'W';
+        header.dib_header.color_space_type[1] = 'i';
+        header.dib_header.color_space_type[2] = 'n';
+        header.dib_header.color_space_type[3] = ' ';
     }
 
     sBmpHandle modified;
     init_empty_BmpHandle(fp2, &modified, &header);
 
-    print_bmp_handle(&original);
-    print_bmp_handle(&modified);
+    // print_bmp_handle(&original);
+    // print_bmp_handle(&modified);
 
     uint8_t pixel[4] = {0};
 
@@ -97,12 +103,7 @@ int main()
         for (uint32_t w = 0; w < modified.width; ++w)
         {
             get_pixel(pixel, &original, h, w);
-
-            pixel[0] = (Alpha * pixel[0] / 255);
-            pixel[1] = (Alpha * pixel[1] / 255);
-            pixel[2] = (Alpha * pixel[2] / 255);
             pixel[3] = Alpha;
-
             set_pixel(pixel, &modified, h, w);
         }
     }
