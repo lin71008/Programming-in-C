@@ -50,7 +50,7 @@ TOUTPUT = $(patsubst %exe,$(TPATH)/%output,$@)
 
 IGNOREEXEC = hw0301
 EXEC = $(filter $(patsubst %,%.exe,$(filter-out $(IGNOREEXEC),$(TARGETS))),$(wildcard *.exe))
-TIMELIMIT = 1.00s
+TIMELIMIT = 10.00s
 
 $(EXEC): TINPUTEXIST = $(shell test -a $(TINPUT) && echo "1")
 $(EXEC): TOUTPUTEXIST = $(shell test -a $(TOUTPUT) && echo "1")

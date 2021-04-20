@@ -29,14 +29,12 @@ int main()
     }
 
     sBmpHandle original;
-    if (setup_BmpHandle(fp1, &original) != 1)
+    if (init_BmpHandle(fp1, &original) != 1)
     {
         printf("Error: File format not recognized.\n");
         fclose(fp1);
         return 0;
     }
-
-    print_bmp_handle_info(&original);
 
     printf("Please input the output BMP file name: ");
     fgets(OutputFileName, 256, stdin);
@@ -58,7 +56,7 @@ int main()
 
     printf("Angle (0-90): ");
     fgets(Buffer, 256, stdin);
-    while (sscanf(Buffer, "%d", &Angle) != 1)
+    while (sscanf(Buffer, "%d", &Angle) != 1 || Angle < 0 || Angle > 90)
     {
         printf("Angle (0-90): ");
         fgets(Buffer, 256, stdin);
@@ -69,14 +67,16 @@ int main()
     sBmpHandle modified;
     init_empty_BmpHandle(fp2, &modified, &header);
 
-    uint8_t pixel[1+(header.bpp-1)/8];
+    print_bmp_handle(&original);
+    print_bmp_handle(&modified);
+
+    uint8_t pixel[4] = {0};
 
     for (uint32_t h = 0; h < modified.height; ++h)
     {
         for (uint32_t w = 0; w < modified.width; ++w)
         {
             get_pixel(pixel, &original, h, w);
-            // printf("%02u %02u %02u %02u\n", pixel[0], pixel[1], pixel[2], pixel[3]);
             set_pixel(pixel, &modified, h, w);
         }
     }
