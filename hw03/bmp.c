@@ -69,7 +69,7 @@ void print_bmp_header(const sBmpHeader *pHeader)
 {
     printf("\nBitmap v%d Header\n", get_bmp_version(pHeader));
     printf("ID:                  %10c%c\n", pHeader->file_header.bm[0], pHeader->file_header.bm[1]);
-    printf("Size:                 %10u\n", pHeader->file_header.flie_size);
+    printf("Size:                 %10u\n", pHeader->file_header.file_size);
     printf("Reserve:              %10u\n", pHeader->file_header.reserve);
     printf("Offset:               %10u\n", pHeader->file_header.offset);
     printf("Header Size:          %10u\n", pHeader->dib_header.header_size);
@@ -107,12 +107,6 @@ void print_bmp_header(const sBmpHeader *pHeader)
     }
 }
 
-void update_bmp_header(sBmpHeader *pHeader)
-{
-    // pHeader->file_header.offset = pHeader
-}
-
-
 int32_t init_BmpHandle(FILE *fp, sBmpHandle *pHandle)
 {
     if (fp == NULL || pHandle == NULL) return 0;
@@ -125,7 +119,9 @@ int32_t init_BmpHandle(FILE *fp, sBmpHandle *pHandle)
     pHandle->bpp = pHandle->header.dib_header.bpp;
     pHandle->height = abs(pHandle->header.dib_header.height);
     pHandle->width = abs(pHandle->header.dib_header.width);
-    pHandle->padding = (32 - (pHandle->width * pHandle->bpp) % 32) % 32;
+    pHandle->line = (1 + (pHandle->width * pHandle->bpp - 1) / 32) * 4;
+    pHandle->get_pixel_offset = 0;
+    pHandle->get_pixel_len = 0;
 
     return 1;
 }
@@ -142,7 +138,9 @@ int32_t init_empty_BmpHandle(FILE *fp, sBmpHandle *pHandle, const sBmpHeader *pH
     pHandle->bpp = pHeader->dib_header.bpp;
     pHandle->height = abs(pHeader->dib_header.height);
     pHandle->width = abs(pHeader->dib_header.width);
-    pHandle->padding = (32 - (pHandle->width * pHandle->bpp) % 32) % 32;
+    pHandle->line = (1 + (pHandle->width * pHandle->bpp - 1) / 32) * 4;
+    pHandle->get_pixel_offset = 0;
+    pHandle->get_pixel_len = 0;
 
     fseek(fp, 0, SEEK_SET);
     fwrite(&pHandle->header.file_header, sizeof(sBmpFileHeader), 1, fp);
@@ -179,33 +177,49 @@ int32_t init_empty_BmpHandle(FILE *fp, sBmpHandle *pHandle, const sBmpHeader *pH
 void print_bmp_handle(const sBmpHandle *pHandle)
 {
     print_bmp_header(&pHandle->header);
-    printf("Padding:              %10x\n", pHandle->padding);
 }
 
-void get_pixel(uint8_t *pixel, sBmpHandle *pHandle, const uint32_t h, const uint32_t w)
+int32_t get_pixel(uint8_t *pixel, sBmpHandle *pHandle, const uint32_t h, const uint32_t w)
 {
-    if (pixel == NULL || pHandle == NULL) return;
-    if (h >= pHandle->height || w >= pHandle->width) return;
-
-    fseek(pHandle->file, pHandle->offset + h * ((pHandle->width * pHandle->bpp + pHandle->padding) / 8) + (w * pHandle->bpp / 8), SEEK_SET);
+    if (pixel == NULL || pHandle == NULL) return 0;
+    if (h >= pHandle->height || w >= pHandle->width) return 0;
 
     if (pHandle->bpp % 8 == 0)
     {
+        uint32_t read_offset = pHandle->offset + h * pHandle->line + (w * pHandle->bpp / 8);
         uint32_t len = pHandle->bpp / 8;
-        fread(pixel, 1, len, pHandle->file);
+
+        if (pHandle->get_pixel_offset <= read_offset && read_offset + len <= pHandle->get_pixel_offset + pHandle->get_pixel_len)
+        {
+            // printf("%d: Copy (%d, %d) from Buffer[%d, %d]\n", pHandle->get_pixel_buffer + read_offset - pHandle->get_pixel_offset, read_offset, len, pHandle->get_pixel_offset, pHandle->get_pixel_len);
+            memcpy(pixel, pHandle->get_pixel_buffer + read_offset - pHandle->get_pixel_offset, len);
+        }
+        else
+        {
+            pHandle->get_pixel_offset = read_offset;
+            fseek(pHandle->file, read_offset, SEEK_SET);
+            pHandle->get_pixel_len = fread(pHandle->get_pixel_buffer, 1, 1000, pHandle->file);
+            // printf("%d: Copy (%d, %d) from Buffer[%d, %d]\n", pHandle->get_pixel_buffer + read_offset - pHandle->get_pixel_offset, read_offset, len, pHandle->get_pixel_offset, pHandle->get_pixel_len);
+            memcpy(pixel, pHandle->get_pixel_buffer + read_offset - pHandle->get_pixel_offset, len);
+        }
+        return 1;
     }
+    return 0;
 }
 
-void set_pixel(uint8_t *pixel, sBmpHandle *pHandle, const uint32_t h, const uint32_t w)
+int32_t set_pixel(uint8_t *pixel, sBmpHandle *pHandle, const uint32_t h, const uint32_t w)
 {
-    if (pixel == NULL || pHandle == NULL) return;
-    if (h >= pHandle->height || w >= pHandle->width) return;
-
-    fseek(pHandle->file, pHandle->offset + h * ((pHandle->width * pHandle->bpp + pHandle->padding) / 8) + (w * pHandle->bpp / 8), SEEK_SET);
+    if (pixel == NULL || pHandle == NULL) return 0;
+    if (h >= pHandle->height || w >= pHandle->width) return 0;
 
     if (pHandle->bpp % 8 == 0)
     {
+        uint32_t read_offset = pHandle->offset + h * pHandle->line + (w * pHandle->bpp / 8);
         uint32_t len = pHandle->bpp / 8;
+
+        fseek(pHandle->file, read_offset, SEEK_SET);
         fwrite(pixel, 1, len, pHandle->file);
+        return 1;
     }
+    return 0;
 }

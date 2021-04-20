@@ -76,9 +76,12 @@ int main()
     if (get_bmp_version(&header) < 4)
     {
         header.file_header.offset += (108 - header.dib_header.header_size);
+        header.file_header.file_size += (108 - header.dib_header.header_size);
+
         header.dib_header.header_size = 108;
 
         header.dib_header.compression = 3;  // !important
+
         header.dib_header.red_channel_bitmask   = 0x00FF0000;
         header.dib_header.green_channel_bitmask = 0x0000FF00;
         header.dib_header.blue_channel_bitmask  = 0x000000FF;
@@ -88,13 +91,17 @@ int main()
         header.dib_header.color_space_type[1] = 'i';
         header.dib_header.color_space_type[2] = 'n';
         header.dib_header.color_space_type[3] = ' ';
+
+        uint32_t new_bitmap_size = header.dib_header.height * (1 + (header.dib_header.width * header.dib_header.bpp - 1) / 32) * 4;
+        header.file_header.file_size += header.dib_header.bitmap_size - new_bitmap_size;
+        header.dib_header.bitmap_size = new_bitmap_size;
     }
 
     sBmpHandle modified;
     init_empty_BmpHandle(fp2, &modified, &header);
 
-    // print_bmp_handle(&original);
-    // print_bmp_handle(&modified);
+    print_bmp_handle(&original);
+    print_bmp_handle(&modified);
 
     uint8_t pixel[4] = {0};
 

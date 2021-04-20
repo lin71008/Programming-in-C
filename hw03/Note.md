@@ -42,11 +42,12 @@ int sscanf(const char *str, const char *format, ...);
 
 hw0302
 ------
-CSV
+就... 讀取 CSV 檔
 
 hw0303 & hw0304
 ---------------
-BMP
+第三題就... 數學...
+第四題查了好久...
 
 hw0305
 ------
@@ -55,6 +56,3 @@ NBDATA.S5 => 登陸武將
 SAVEDATA.S5P => `R.P.@` 貌似是存檔開頭?
 0x1ac0, 0xc7ee, 0x2224a, 0x2cf78, 0x37ca6
 https://www.sanguogame.com.cn/special/san5/san5-x.html
-
-hw0306
-------

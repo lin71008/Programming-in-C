@@ -50,7 +50,7 @@ TOUTPUT = $(patsubst %exe,$(TPATH)/%output,$@)
 
 IGNOREEXEC = hw0301
 EXEC = $(filter $(patsubst %,%.exe,$(filter-out $(IGNOREEXEC),$(TARGETS))),$(wildcard *.exe))
-TIMELIMIT = 10.00s
+TIMELIMIT = 30.00s
 
 $(EXEC): TINPUTEXIST = $(shell test -a $(TINPUT) && echo "1")
 $(EXEC): TOUTPUTEXIST = $(shell test -a $(TOUTPUT) && echo "1")
@@ -87,7 +87,7 @@ test: $(EXEC)
 	@echo "All program have been tested."
 
 clean:
-	rm -f $(OBJECTS) $(EXEC)
+	rm -f $(OBJECTS) $(IGNOREEXEC) $(EXEC)
 
 # ignore below
 
