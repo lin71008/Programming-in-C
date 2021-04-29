@@ -12,24 +12,23 @@ hw0304: hw0304.o share.o bmp.o
 hw0305: hw0305.o share.o
 hw0306: hw0306.o
 
-# hw0301: LDFLAGS += -lpthread
+TPATH = ./test
+TIMELIMIT = 10.00s
+TIGNORE = hw0301 hw0302
 
-$(OBJECTS): %o:%c
-	$(CC) $(LDFLAGS) $(CFLAGS) -c -o $@ $<
-
-$(TARGETS): %: $(%)
-	$(CC) $(LDFLAGS) -o $@ $^
+################################################################################
 
 .DEFAULT_GOAL := all
-.PHONY: install test release
+.PHONY: install test clean
 FORCE:
 
 usage:
 	@echo "Usage: make [Options]"
 	@echo "Options:"
 	@echo "  usage    Display this information."
+	@echo "  install  Install dependency package."
 	@echo "  all      Build all targets."
-	@echo "  [name]   Build specified target that listing below."
+	@echo "  [target] Build specified target that listing below."
 	@echo "  	          target: $(TARGETS)"
 	@echo "  test     Testing all executable with example I/O in test folder."
 	@echo "  clean    remove all build result."
@@ -40,42 +39,48 @@ install:
 	@echo "================================"
 	@echo "Nothing needs to be installed."
 
+$(OBJECTS): %o:%c
+	$(CC) $(LDFLAGS) $(CFLAGS) -c -o $@ $<
+
+$(TARGETS): %: $(%)
+	$(CC) $(LDFLAGS) -o $@ $^
+
 all: $(TARGETS)
 	@echo "================================"
 	@echo "All program have been compiled."
 
-TPATH = ./test
-TINPUT = $(patsubst %exe,$(TPATH)/%input,$@)
-TOUTPUT = $(patsubst %exe,$(TPATH)/%output,$@)
+EXECEXTENSION = .exe .out
+EXEC = $(filter $(foreach extension,$(EXECEXTENSION),$(patsubst %,%$(extension),$(TARGETS))), $(wildcard *))
 
-IGNOREEXEC = hw0301
-EXEC = $(filter $(patsubst %,%.exe,$(filter-out $(IGNOREEXEC),$(TARGETS))),$(wildcard *.exe))
-TIMELIMIT = 30.00s
-
+$(EXEC): TINPUT = $(foreach extension,$(EXECEXTENSION),$(patsubst %$(extension),$(TPATH)/%.input,$(filter %$(extension),$@)))
+$(EXEC): TOUTPUT = $(foreach extension,$(EXECEXTENSION),$(patsubst %$(extension),$(TPATH)/%.output,$(filter %$(extension),$@)))
 $(EXEC): TINPUTEXIST = $(shell test -a $(TINPUT) && echo "1")
 $(EXEC): TOUTPUTEXIST = $(shell test -a $(TOUTPUT) && echo "1")
 
 $(EXEC): FORCE
-	@echo "=== Start test program $@"
-	$(if $(TINPUTEXIST),\
-		@echo "=== Test with example input" &&  head -n 10 $(TINPUT),\
-		@echo "=== No example input"\
-	)
-	$(if $(TINPUTEXIST),\
-		$(if $(TOUTPUTEXIST),\
-			timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT)|diff - $(TOUTPUT) --color=always -B -w -s,\
-			@echo "=== No example output";\
-			$(if $(shell eval timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT)),\
-				timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT) && echo "",\
-				echo "(no output)"\
-			)\
-		),\
-		$(if $(TOUTPUTEXIST),\
-			timeout -k 9 $(TIMELIMIT) ./$@|diff - $(TOUTPUT) --color=always -B -w -s,\
-			@echo "=== No example output";\
-			$(if $(shell eval timeout -k 9 $(TIMELIMIT) ./$@),\
-				timeout -k 9 $(TIMELIMIT) ./$@ && echo "",\
-				echo "(no output)"\
+	$(if $(filter $@, $(foreach extension,$(EXECEXTENSION),$(patsubst %,%$(extension),$(TIGNORE)))),\
+		@echo "=== Skip test program $@",\
+		@echo "=== Start test program $@";\
+		$(if $(TINPUTEXIST),\
+			echo "=== Test with example input" &&  head -n 10 $(TINPUT),\
+			echo "=== No example input"\
+		);\
+		$(if $(TINPUTEXIST),\
+			$(if $(TOUTPUTEXIST),\
+				timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT)|diff - $(TOUTPUT) --color=always -B -w -s,\
+				echo "=== No example output";\
+				$(if $(shell eval timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT)),\
+					timeout -k 9 $(TIMELIMIT) ./$@ <$(TINPUT) && echo "",\
+					echo "(no output)"\
+				)\
+			),\
+			$(if $(TOUTPUTEXIST),\
+				timeout -k 9 $(TIMELIMIT) ./$@|diff - $(TOUTPUT) --color=always -B -w -s,\
+				echo "=== No example output";\
+				$(if $(shell eval timeout -k 9 $(TIMELIMIT) ./$@),\
+					timeout -k 9 $(TIMELIMIT) ./$@ && echo "",\
+					echo "(no output)"\
+				)\
 			)\
 		)\
 	)
@@ -87,7 +92,7 @@ test: $(EXEC)
 	@echo "All program have been tested."
 
 clean:
-	rm -f $(OBJECTS) $(IGNOREEXEC) $(EXEC)
+	rm -f $(OBJECTS) $(EXEC)
 
 # ignore below
 

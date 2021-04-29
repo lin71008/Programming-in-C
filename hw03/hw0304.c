@@ -100,8 +100,8 @@ int main()
     sBmpHandle modified;
     init_empty_BmpHandle(fp2, &modified, &header);
 
-    print_bmp_handle(&original);
-    print_bmp_handle(&modified);
+    // print_bmp_handle(&original);
+    // print_bmp_handle(&modified);
 
     uint8_t pixel[4] = {0};
 
