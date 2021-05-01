@@ -38,11 +38,13 @@ int sscanf(const char *str, const char *format, ...);
 
 [sscanf(3)]: https://linux.die.net/man/3/sscanf
 
-用 `pthread` 或 `windows.h` 什麼的實作之後再說...
+用 `pthread` 或 `windows.h` 什麼的實作之後再說... (用以解決延遲累積的問題)
 
 hw0302
 ------
-就... 讀取 CSV 檔
+就... 讀取 CSV 檔，
+寫得有點爛，
+可能有空再改改
 
 hw0303 & hw0304
 ---------------
@@ -55,4 +57,6 @@ hw0305
 NBDATA.S5 => 登陸武將
 SAVEDATA.S5P => `R.P.@` 貌似是存檔開頭?
 0x1ac0, 0xc7ee, 0x2224a, 0x2cf78, 0x37ca6
-https://www.sanguogame.com.cn/special/san5/san5-x.html
+在網路上找到了神奇的[參考資料] OAO
+
+[參考資料]: https://www.sanguogame.com.cn/special/san5/san5-x.html

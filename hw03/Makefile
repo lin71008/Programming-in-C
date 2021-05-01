@@ -14,7 +14,9 @@ hw0306: hw0306.o
 
 TPATH = ./test
 TIMELIMIT = 10.00s
-TIGNORE = hw0301 hw0302
+TIGNORE = hw0301
+
+TEMPFILE = test_out.bmp
 
 ################################################################################
 
@@ -92,7 +94,7 @@ test: $(EXEC)
 	@echo "All program have been tested."
 
 clean:
-	rm -f $(OBJECTS) $(EXEC)
+	rm -f $(OBJECTS) $(EXEC) $(TEMPFILE)
 
 # ignore below
 
