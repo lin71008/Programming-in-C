@@ -9,6 +9,7 @@ HW[0-9]+
 詳細依各作業中的 `README.md` 為主。
 
 * HW01: string
+* HW02: struct, sBigNum
 
 [A-Z0-9]+
 ---------
