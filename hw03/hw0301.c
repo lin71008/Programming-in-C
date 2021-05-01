@@ -4,67 +4,29 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
+
+// linux/nanosleep
+#include <sys/time.h>
+
+// windows/sleep
 #include <time.h>
 
 #include "share.h"
 
-#ifdef _WIN32
 // color
+#ifdef _WIN32
 #include <windows.h>
 #else
-// nanosleep, gettimeofday
-#include <sys/time.h>
 #include "color.h"
 #endif
 
-#ifdef _WIN32
 
 // lyrics color setting
+#ifdef _WIN32
 const int32_t DefaultColor = 15;
 const int32_t LyricsColor[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 const int32_t LyricsColor_MAX = sizeof(LyricsColor) / sizeof(int32_t);
-
-void set_color(int32_t n)
-{
-    HANDLE  hConsole;
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (n == -1)
-    {
-        SetConsoleTextAttribute(hConsole, DefaultColor);
-    }
-    else if (n < LyricsColor_MAX)
-    {
-        SetConsoleTextAttribute(hConsole, LyricsColor[n]);
-    }
-}
-
-void sleep_ms(int32_t delay)
-{
-    sleep(delay / 1000);
-}
-
-int gettimeofday(struct timeval *tp, void *tzp)
-{
-  time_t clock;
-  struct tm tm;
-  SYSTEMTIME wtm;
-  GetLocalTime(&wtm);
-  tm.tm_year   = wtm.wYear - 1900;
-  tm.tm_mon   = wtm.wMonth - 1;
-  tm.tm_mday   = wtm.wDay;
-  tm.tm_hour   = wtm.wHour;
-  tm.tm_min   = wtm.wMinute;
-  tm.tm_sec   = wtm.wSecond;
-  tm. tm_isdst  = -1;
-  clock = mktime(&tm);
-  tp->tv_sec = clock;
-  tp->tv_usec = wtm.wMilliseconds * 1000;
-  return 0;
-}
-
 #else
-
-// lyrics color setting
 const char *DefaultColor = CLR_LWHI;
 const char *LyricsColor[] = { CLR_LRED,\
                               CLR_LBLU,\
@@ -76,9 +38,22 @@ const char *LyricsColor[] = { CLR_LRED,\
                               CLR_GRE,\
                               CLR_WHI};
 const int32_t LyricsColor_MAX = sizeof(LyricsColor) / sizeof(char*);
+#endif
 
 void set_color(int32_t n)
 {
+#ifdef _WIN32
+    HANDLE  hConsole;
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (n == -1)
+    {
+        SetConsoleTextAttribute(hConsole, DefaultColor);
+    }
+    else if (n < LyricsColor_MAX)
+    {
+        SetConsoleTextAttribute(hConsole, LyricsColor[n]);
+    }
+#else
     if (n == -1)
     {
         printf("%s", DefaultColor);
@@ -87,15 +62,18 @@ void set_color(int32_t n)
     {
         printf("%s", LyricsColor[n]);
     }
+#endif
 }
 
 void sleep_ms(int32_t delay)
 {
+#ifdef _WIN32
+    sleep(delay / 1000);
+#else
     struct timespec sDelay = {.tv_sec = (delay / 1000), .tv_nsec = (delay % 1000) * 1000};
     while (nanosleep(&sDelay, &sDelay) == -1 && errno != EINTR) { /* waiting */ }
-}
-
 #endif
+}
 
 int main()
 {
@@ -125,9 +103,6 @@ int main()
     uint32_t m = 0, s = 0, x = 0;  // current lyrics time
     uint32_t lm = 0, ls = 0, lx = 0;  // last lyrics time
 
-    struct  timeval origin, current;  // debug only...
-    gettimeofday(&origin, NULL);
-
     char *name_buffer[LyricsColor_MAX];
     int32_t top = 0;
     uint8_t flag = 0;
@@ -142,11 +117,6 @@ int main()
             int32_t delay = (60000*m+1000*s+x)-(60000*lm+1000*ls+lx);  // [ms]
             sleep_ms(delay);
             remove_newline(lyrics);
-
-            // gettimeofday(&current, NULL);
-            // uint64_t diff = (1000000*current.tv_sec+current.tv_usec)-(1000000*origin.tv_sec+origin.tv_usec);
-            // printf("[%02d:%02d.%02d]: ", (uint32_t)(diff/60000000), (uint32_t)((diff/1000000)%60), (uint32_t)((diff/1000)%100));
-
             printf("%s\n", lyrics);
             lm = m, ls = s, lx = x;
         }
