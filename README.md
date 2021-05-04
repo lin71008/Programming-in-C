@@ -8,10 +8,13 @@ HW[0-9]+
 第？次的作業，每次作業的主題都有點不同（~~隨興~~），
 詳細依各作業中的 `README.md` 為主。
 
-* HW01: string
+* HW01: string, json
 * HW02: struct, sBigNum
+* HW03: struct, bmp, csv
 
 [A-Z0-9]+
 ---------
 除日常作業以外的練習，如期中、期末、專題等。
 詳細依各作業中的 `README.md` 為主。
+
+* final: SAN JUAN (Board Game)
