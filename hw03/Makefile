@@ -49,18 +49,18 @@ install:
 	@echo "Nothing needs to be installed."
 
 $(OBJECTS): %o:%c
-	$(CC) $(LDFLAGS) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(TARGETS): %: $(%)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 all: $(TARGETS)
 	@echo "================================"
 	@echo "All program have been compiled."
 
 test-%: EXEC = $(patsubst test-%,%,$@)
-test-%: TINPUTEXIST = $(shell test -a $(TINPUT) && echo "1")
-test-%: TOUTPUTEXIST = $(shell test -a $(TOUTPUT) && echo "1")
+test-%: TINPUTEXIST = $(shell test -e $(TINPUT) && echo "1")
+test-%: TOUTPUTEXIST = $(shell test -e $(TOUTPUT) && echo "1")
 
 test-%:
 	@$(if $(shell test -e $(EXEC) && echo "1"),\

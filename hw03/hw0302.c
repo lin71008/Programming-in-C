@@ -535,7 +535,7 @@ void print_team_info(int32_t idx)
     if (idx < db_size)
     {
         printf("+---------------------------------------------------------+\n");
-        printf("|%*s%s%*s|\n", (57-strlen(team_db[idx].teamname))/2, "", team_db[idx].teamname, (58-strlen(team_db[idx].teamname))/2, "");  // 55
+        printf("|%*s%s%*s|\n", ((int)((57-strlen(team_db[idx].teamname))/2)), "", team_db[idx].teamname, ((int)((58-strlen(team_db[idx].teamname))/2)), "");  // 55
         printf("|-----------------+---------------+---------------+-------|\n");
         printf("|                 |      Home     |      Away     | Total |\n");
         printf("|-----------------+---------------+---------------+-------|\n");
