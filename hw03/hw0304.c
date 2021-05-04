@@ -77,6 +77,7 @@ int main()
     {
         header.file_header.offset += (108 - header.dib_header.header_size);
         header.file_header.file_size += (108 - header.dib_header.header_size);
+        header.dib_header.bpp = 32;
 
         header.dib_header.header_size = 108;
 
