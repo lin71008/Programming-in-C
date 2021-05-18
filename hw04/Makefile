@@ -55,20 +55,20 @@ test-hw0402: test-main
 		timeout -k 9 $(TIMELIMIT) ./$(EXEC) --help && \
 		echo "================================";\
 		echo "./$(EXEC) -i main.c -o test_out.c -l 1";\
-		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -i main.c -o test_out.c -l 1 && \
-		timeout -k 9 $(TIMELIMIT) ./test_out|diff - ./test_out.txt --color=always -B -w -s; \
+		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -i main.c -o test_out.c -l 1 && make test_out ; \
+		timeout -k 9 $(TIMELIMIT) ./test_out|diff - ./test_out.txt --color=always -B -w -s ; \
 		echo "================================";\
 		echo "./$(EXEC) -i main.c -o test_out.c -l 2";\
-		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -i main.c -o test_out.c -l 1 && \
-		timeout -k 9 $(TIMELIMIT) ./test_out|diff - ./test_out.txt --color=always -B -w -s; \
+		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -i main.c -o test_out.c -l 1 && make test_out ; \
+		timeout -k 9 $(TIMELIMIT) ./test_out|diff - ./test_out.txt --color=always -B -w -s ; \
 		echo "================================";\
 		echo "./$(EXEC) -i main.c -o test_out.c -l 3";\
-		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -i main.c -o test_out.c -l 1 && \
-		timeout -k 9 $(TIMELIMIT) ./test_out|diff - ./test_out.txt --color=always -B -w -s; \
+		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -i main.c -o test_out.c -l 1 && make test_out ; \
+		timeout -k 9 $(TIMELIMIT) ./test_out|diff - ./test_out.txt --color=always -B -w -s ; \
 		echo "================================",\
 		echo "./$(EXEC) -i main.c -o test_out.c -l 4";\
-		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -i main.c -o test_out.c -l 1 && \
-		timeout -k 9 $(TIMELIMIT) ./test_out|diff - ./test_out.txt --color=always -B -w -s; \
+		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -i main.c -o test_out.c -l 1 && make test_out ; \
+		timeout -k 9 $(TIMELIMIT) ./test_out|diff - ./test_out.txt --color=always -B -w -s ; \
 		echo "================================",\
 		echo "=== Test target not exist."\
 	)

@@ -167,7 +167,7 @@ int main(int argc, char **argv)
         sBSTNode *root = NULL;
         sZIPLocalHeader header;
 
-       fprintf(stdout, "Zip File: %s...", argv[i]);
+       fprintf(stdout, "%s :\n", argv[i]);
 
         getZIPLocalHeader(&header, fp);
 

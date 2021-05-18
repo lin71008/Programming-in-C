@@ -166,7 +166,6 @@ int main(int argc, char **argv)
         fwrite(buffer, 1, buffer_size, fp2);
     }
 
-
     fclose(fp2);
     fclose(fp1);
 
