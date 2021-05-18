@@ -34,22 +34,25 @@ test-hw0401:
 		ls -l | grep -- main && \
 		echo "================================";\
 		echo "./$(EXEC) -r test_out.c main.c.1 main.c.3 main.c.2";\
-		echo "================================";\
 		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -r test_out.c main.c.1 main.c.3 main.c.2 && \
 		diff main.c test_out.c --color=always -B -w -s;\
 		echo "================================",\
 		echo "=== Test target not exist."\
 	)
 
-test-hw0402:
+test-main: main
+	@$(if $(shell test -e $(EXEC) && echo "1"),\
+		echo "=== Prepare test_out.txt";\
+		timeout -k 9 $(TIMELIMIT) ./main > ./test_out.txt, \
+		echo ""\
+	)
+
+test-hw0402: test-main
 	@$(if $(shell test -e $(EXEC) && echo "1"),\
 		echo "=== Start test program: $(EXEC)";\
 		echo "./$(EXEC) --help";\
 		echo "================================";\
 		timeout -k 9 $(TIMELIMIT) ./$(EXEC) --help && \
-		echo "================================";\
-		make main test_out ;\
-		timeout -k 9 $(TIMELIMIT) ./main > ./test_out.txt; \
 		echo "================================";\
 		echo "./$(EXEC) -i main.c -o test_out.c -l 1";\
 		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -i main.c -o test_out.c -l 1 && \

@@ -27,11 +27,13 @@ uint16_t FLAG = 0x0000;
 void usage()
 {
     fprintf(stderr, "Split:\n");
-    fprintf(stderr, "   ./hw0401 -s target [--size <num>]\n");
-    fprintf(stderr, "The default small file size is 1000 bytes.\n\n");
+    fprintf(stderr, "    ./hw0401 -s file [--size <num>] [--prefix <path>]\n");
+    fprintf(stderr, "        Divide the target file into small fragment.\n");
+    fprintf(stderr, "        Default fragment size is 1000 bytes.\n");
     fprintf(stderr, "Recover:\n");
-    fprintf(stderr, "   ./hw0401 -r output file ...\n");
-    fprintf(stderr, "The input small files may not be in order.\n");
+    fprintf(stderr, "    ./hw0401 -r file fragment ...\n");
+    fprintf(stderr, "        Combine the given fragments into one large file.\n");
+    fprintf(stderr, "        The input fragment can be in irregular order.\n");
 }
 
 int main(int argc, char **argv)
@@ -150,7 +152,7 @@ int main(int argc, char **argv)
         {
             if (file[i] != 0)
             {
-                printf("Error: Missing some file.\n");
+                fprintf(stderr, "Error: Missing some file.\n");
                 return 0;
             }
         }
@@ -158,7 +160,7 @@ int main(int argc, char **argv)
         FILE *fp = NULL;
         if ((fp = fopen(filename, "wb")) == NULL)
         {
-            printf("Error: File could not be opened.\n");
+            fprintf(stderr, "Error: File could not be opened.\n");
             return 0;
         }
 
@@ -171,7 +173,7 @@ int main(int argc, char **argv)
                     FILE *fp2 = NULL;
                     if ((fp2 = fopen(argv[j], "rb")) == NULL)
                     {
-                        printf("Error: File could not be opened.\n");
+                        fprintf(stderr, "Error: File could not be opened.\n");
                         fclose(fp);
                         return 0;
                     }
@@ -207,7 +209,7 @@ int main(int argc, char **argv)
         FILE *fp = NULL;
         if ((fp = fopen(filename, "rb")) == NULL)
         {
-            printf("Error: File could not be opened.\n");
+            fprintf(stderr, "Error: File could not be opened.\n");
             return 0;
         }
 
@@ -222,7 +224,7 @@ int main(int argc, char **argv)
         sprintf(filename2, "%s/%s.%u", prefix, filename, index);
         if ((fp2 = fopen(filename2, "wb")) == NULL)
         {
-            printf("Error: File could not be opened.\n");
+            fprintf(stderr, "Error: File could not be opened.\n");
             fclose(fp);
             return 0;
         }
@@ -237,7 +239,7 @@ int main(int argc, char **argv)
                 sprintf(filename2, "%s/%s.%u", prefix, filename, index);
                 if ((fp2 = fopen(filename2, "wb")) == NULL)
                 {
-                    printf("Error: File could not be opened.\n");
+                    fprintf(stderr, "Error: File could not be opened.\n");
                     fclose(fp);
                     return 0;
                 }

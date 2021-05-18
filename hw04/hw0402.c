@@ -40,7 +40,14 @@ uint8_t FLAG = 0x00;
 
 void usage()
 {
-    printf("Usage: ...\n");
+    fprintf(stderr, "Usage:\n");
+    fprintf(stderr, "    ./hw0402 -i <target> -o <output> -l <obfuscation level>\n");
+    fprintf(stderr, "        Obfuscate the target file with a given level.\n");
+    fprintf(stderr, "        The obfuscation level could be the following values:\n");
+    fprintf(stderr, "            1: random padding.\n");
+    fprintf(stderr, "            2: random variable name.\n");
+    fprintf(stderr, "            3: random function name.\n");
+    fprintf(stderr, "            4: unreadable integer constant.\n");
 }
 
 int main(int argc, char **argv)
@@ -139,14 +146,14 @@ int main(int argc, char **argv)
 
     if ((fp1 = fopen(input_filename, "r")) == NULL)
     {
-        printf("Error: File \"%s\" could not be opened.\n", input_filename);
+       fprintf(stderr, "Error: File \"%s\" could not be opened.\n", input_filename);
         return 0;
     }
 
     if ((fp2 = fopen(output_filename, "w")) == NULL)
     {
         fclose(fp1);
-        printf("Error: File \"%s\" could not be opened.\n", output_filename);
+       fprintf(stderr, "Error: File \"%s\" could not be opened.\n", output_filename);
         return 0;
     }
 

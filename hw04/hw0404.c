@@ -40,10 +40,10 @@ int cmpFileItem(const void *p1, const void *p2)
 void sBST_print(sBSTNode **root, int tab)
 {
     if (root == NULL) { return; }
-    for (int i = 0; i < tab; ++i) { printf("    "); }
+    for (int i = 0; i < tab; ++i) {fprintf(stdout, "    "); }
     char *c = strrchr(((sFileItem*) (*root)->data)->name, '/');
-    if (c != NULL && *c != '\0' && *(c + 1) != '\0') { printf("+-- %s\n", (c + 1)); }
-    else { printf("+-- %s\n", ((sFileItem*) (*root)->data)->name); }
+    if (c != NULL && *c != '\0' && *(c + 1) != '\0') {fprintf(stdout, "+-- %s\n", (c + 1)); }
+    else {fprintf(stdout, "+-- %s\n", ((sFileItem*) (*root)->data)->name); }
     if ((*root)->left != NULL) { sBST_print(&((*root)->left), (tab + 1)); }
     if ((*root)->right != NULL) { sBST_print(&((*root)->right), tab); }
 }
@@ -90,17 +90,17 @@ typedef struct _sZIPLocalHeader
 #define printZIPLocalHeader(header) \
     if ((header) != NULL)\
     {\
-        printf("PK              : %c%c%c%c\n", (header)->info.PK[0], (header)->info.PK[1], (header)->info.PK[2], (header)->info.PK[3]);\
-        printf("Version         : %u\n", (header)->info.version);\
-        printf("Purpose         : %u\n", (header)->info.purpose);\
-        printf("Compress Method : %d%d\n", (header)->info.compress[0], (header)->info.compress[1]);\
-        printf("Last Time       : %u\n", (header)->info.last_time);\
-        printf("Last Date       : %u\n", (header)->info.last_date);\
-        printf("CRC32           : %d\n", (header)->info.crc32);\
-        printf("Compress Size   : %u\n", (header)->info.compress_size);\
-        printf("Uncompress Size : %u\n", (header)->info.uncompress_size);\
-        printf("File Name       : %s\n", (header)->file_name);\
-        printf("Extern Field    : %s\n", (header)->extern_field);\
+       fprintf(stdout, "PK              : %c%c%c%c\n", (header)->info.PK[0], (header)->info.PK[1], (header)->info.PK[2], (header)->info.PK[3]);\
+       fprintf(stdout, "Version         : %u\n", (header)->info.version);\
+       fprintf(stdout, "Purpose         : %u\n", (header)->info.purpose);\
+       fprintf(stdout, "Compress Method : %d%d\n", (header)->info.compress[0], (header)->info.compress[1]);\
+       fprintf(stdout, "Last Time       : %u\n", (header)->info.last_time);\
+       fprintf(stdout, "Last Date       : %u\n", (header)->info.last_date);\
+       fprintf(stdout, "CRC32           : %d\n", (header)->info.crc32);\
+       fprintf(stdout, "Compress Size   : %u\n", (header)->info.compress_size);\
+       fprintf(stdout, "Uncompress Size : %u\n", (header)->info.uncompress_size);\
+       fprintf(stdout, "File Name       : %s\n", (header)->file_name);\
+       fprintf(stdout, "Extern Field    : %s\n", (header)->extern_field);\
     }
 
 
@@ -112,7 +112,7 @@ const struct option long_options[] =
 
 void usage()
 {
-    printf("Usage: hw0404 file...\n");
+    fprintf(stderr, "Usage: ./hw0401 <zip file> ...\n");
 }
 
 int main(int argc, char **argv)
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
     {
         if (!check_file_extension(argv[i], "zip"))
         {
-            printf("Error: file format not recognized: %s\n", argv[i]);
+           fprintf(stderr, "Error: file format not recognized: %s\n", argv[i]);
             return 0;
         }
     }
@@ -160,14 +160,14 @@ int main(int argc, char **argv)
     {
         if ((fp = fopen(argv[i], "rb")) == NULL)
         {
-            printf("Error: File could not be opened.\n");
+           fprintf(stderr, "Error: File could not be opened.\n");
             return 0;
         }
 
         sBSTNode *root = NULL;
         sZIPLocalHeader header;
 
-        printf("Zip File: %s\n", argv[i]);
+       fprintf(stdout, "Zip File: %s...", argv[i]);
 
         getZIPLocalHeader(&header, fp);
 
