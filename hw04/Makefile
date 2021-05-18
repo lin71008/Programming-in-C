@@ -5,10 +5,11 @@ LDFLAGS = -lm
 OBJECTS = $(patsubst %c, %o, $(wildcard *.c))
 TARGETS = hw0401 hw0402 hw0403 hw0404
 
-hw0401: hw0401.o
+hw0401: hw0401.o share.o
 hw0402: hw0402.o share.o
 hw0403: hw0403.o myprintf.o
 hw0404: hw0404.o share.o
+main: main.o
 
 TPATH = ./test
 TIMELIMIT = 1.00s
@@ -16,8 +17,27 @@ TIGNORE =
 
 TINPUT = $(patsubst %,$(TPATH)/%.input,$(EXEC))
 TOUTPUT = $(patsubst %,$(TPATH)/%.output,$(EXEC))
+TEMPFILE = test_out.* main.c.*
 
-TEMPFILE =
+test-hw0401:
+	@$(if $(shell test -e $(EXEC) && echo "1"),\
+		echo "=== Start test program: $(EXEC)";\
+		echo "./$(EXEC) --help";\
+		echo "================================";\
+		timeout -k 9 $(TIMELIMIT) ./$(EXEC) --help && \
+		echo "================================";\
+		echo "./$(EXEC) -s main.c --size 500 --prefix $(TEMPATH)";\
+		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -s main.c --size 500 && \
+		echo "================================";\
+		ls -l | grep -- main && \
+		echo "================================";\
+		echo "./$(EXEC) -r test_out.c main.c.1 main.c.3 main.c.2";\
+		echo "================================";\
+		timeout -k 9 $(TIMELIMIT) ./$(EXEC) -r test_out.c main.c.1 main.c.3 main.c.2 && \
+		diff main.c test_out.c --color=always -B -w -s;\
+		echo "================================",\
+		echo "=== Test target not exist."\
+	)
 
 ################################################################################
 
