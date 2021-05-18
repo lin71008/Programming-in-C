@@ -38,13 +38,16 @@ struct _sstatus
 //            xxxx -> error
 uint8_t FLAG = 0x00;
 
-void usage();
+void usage()
+{
+    printf("Usage: ...\n");
+}
 
 int main(int argc, char **argv)
 {
-    char input_filename[256];
-    char output_filename[256];
-    int32_t obfuscation_level;
+    char input_filename[256] = {0};
+    char output_filename[256] = {0};
+    int32_t obfuscation_level = 0;
 
     int32_t option = 0;
     while ((option = getopt_long(argc, argv, "ho:i:l:", long_options, NULL)) != -1)
@@ -161,9 +164,4 @@ int main(int argc, char **argv)
     fclose(fp1);
 
     return 0;
-}
-
-void usage()
-{
-
 }

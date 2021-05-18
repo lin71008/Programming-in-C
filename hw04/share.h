@@ -1,8 +1,6 @@
 #ifndef __SHARE_H__
 #define __SHARE_H__
 
-#include <string.h>
-
 // remove '\n' character at the end of string s. (if exist)
 extern void remove_newline(char *s);
 

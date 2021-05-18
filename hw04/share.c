@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "share.h"
 
 void remove_newline(char *s)

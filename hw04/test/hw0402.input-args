@@ -1,6 +1,6 @@
--l 1 -i test.c -o test_output.c
--l 2 -i test.c -o test_output.c
--l 3 -i test.c -o test_output.c
--l 4 -i test.c -o test_output.c
+-l 1 -i main.c -o test_output.c
+-l 2 -i main.c -o test_output.c
+-l 3 -i main.c -o test_output.c
+-l 4 -i main.c -o test_output.c
 --help
 -h

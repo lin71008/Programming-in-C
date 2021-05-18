@@ -1,3 +1,3 @@
--s a.out --size 100000
--r a.out a.out.1 a.out.2 a.out.3
+-s main.c --size 500
+-r test_out.c main.c.1 main.c.3 main.c.2
 --help
