@@ -11,6 +11,8 @@ HW[0-9]+
 * HW01: string, json
 * HW02: struct, sBigNum
 * HW03: struct, bmp, csv
+* HW04: va_list, myprintf
+* HW05: base64, libcurl
 
 [A-Z0-9]+
 ---------
