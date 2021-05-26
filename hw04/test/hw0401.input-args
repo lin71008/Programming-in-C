@@ -1,0 +1,3 @@
+-s main.c --size 500
+-r test_out.c main.c.1 main.c.3 main.c.2
+--help
