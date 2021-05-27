@@ -1,0 +1,10 @@
+Error: please run ./hw0501 --help to see the usage.
+Usage:    ./hw0501 [options] <file>
+Options:
+  -e, --enc       Encode a file to a text file.
+  -d, --dec       Decode a text file to a file.
+  -o, --output    Output file name.
+  -r, --rule      Encoding rule.
+                  Supported: RFC-1421, RFC-2045, RFC-2152, RFC-3501,
+                             RFC-4648-4, RFC-4648-5, RFC-4880.
+                  *** DEFAULT USING RFC-1421 ***

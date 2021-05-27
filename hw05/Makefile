@@ -9,6 +9,23 @@ hw0501: hw0501.o
 hw0502: hw0502.o
 hw0503: hw0503.o
 
+TPATH = ./test
+TIMELIMIT = 0.00s
+TIGNORE = hw0502
+
+TESTINPUT = $(patsubst %,$(TPATH)/%.input,$(EXEC))
+TESTOUTPUT = $(patsubst %,$(TPATH)/%.output,$(EXEC))
+TEMPFILE = test_out*
+
+test-hw0501:
+	@if ! test -e $(EXEC); then echo "$(EXEC) not exist."; false; fi
+	timeout -k 9 $(TIMELIMIT) ./$(EXEC) > test_out
+	timeout -k 9 $(TIMELIMIT) ./$(EXEC) --help >> test_out
+	timeout -k 9 $(TIMELIMIT) ./$(EXEC) -e ./LICENSE -o test_out_hw0501_encoding >> test_out
+	timeout -k 9 $(TIMELIMIT) ./$(EXEC) -d test_out_hw0501_encoding -o ./test_out_hw0501_decoding >> test_out
+	diff ./LICENSE ./test_out_hw0501_decoding  -B -w -s
+	diff ./test_out $(TESTOUTPUT) -B -w -s
+
 ################################################################################
 
 .DEFAULT_GOAL := all
@@ -35,11 +52,19 @@ $(OBJECTS): %o:%c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(TARGETS): %: $(%)
-	$(CC) -o $@ $^ $(LDFLAGS)
+	-$(CC) -o $@ $^ $(LDFLAGS)
 
 all: $(TARGETS)
 	@echo "================================"
 	@echo "All program have been compiled."
+
+test-%: EXEC = $(patsubst test-%,%,$@)
+test-%:
+	false
+
+test: $(patsubst %,test-%,$(filter-out $(TIGNORE),$(TARGETS)))
+	@echo "================================"
+	@echo "All program have been tested."
 
 clean:
 	rm -f $(OBJECTS) $(TARGETS) $(TEMPFILE)
@@ -47,7 +72,7 @@ clean:
 # ignore below
 
 pre-release-exe: CFLAGS = -std=gnu11 -O2 -Wall -Werror -Wextra
-pre-release-exe: all clean
+pre-release-exe: all test clean
 	@
 
 pre-release-doc: DOCUMENT = $(filter-out $(EXCLUDE),$(wildcard *.md))
