@@ -44,7 +44,7 @@ static void usage()
 static inline int set_encoding(char *encode_rule)
 {
     if (!encode_rule) return 1;
-    if (!strcmp(encode_rule, "RFC-1421"))
+    if (!strncmp(encode_rule, "RFC-1421", 32))
     {
         encode_char_set[62] = '+';
         encode_char_set[63] = '/';
@@ -52,7 +52,7 @@ static inline int set_encoding(char *encode_rule)
         separators = 1;
         length = 64;
     }
-    else if (!strcmp(encode_rule, "RFC-2045"))
+    else if (!strncmp(encode_rule, "RFC-2045", 32))
     {
         encode_char_set[62] = '+';
         encode_char_set[63] = '/';
@@ -60,7 +60,7 @@ static inline int set_encoding(char *encode_rule)
         separators = 1;
         length = 76;
     }
-    else if (!strcmp(encode_rule, "RFC-2152"))
+    else if (!strncmp(encode_rule, "RFC-2152", 32))
     {
         encode_char_set[62] = '+';
         encode_char_set[63] = '/';
@@ -68,7 +68,7 @@ static inline int set_encoding(char *encode_rule)
         separators = 0;
         length = 0;
     }
-    else if (!strcmp(encode_rule, "RFC-3501"))
+    else if (!strncmp(encode_rule, "RFC-3501", 32))
     {
         encode_char_set[62] = '+';
         encode_char_set[63] = ',';
@@ -76,7 +76,7 @@ static inline int set_encoding(char *encode_rule)
         separators = 0;
         length = 0;
     }
-    else if (!strcmp(encode_rule, "RFC-4648-4"))
+    else if (!strncmp(encode_rule, "RFC-4648-4", 32))
     {
         encode_char_set[62] = '+';
         encode_char_set[63] = '/';
@@ -84,7 +84,7 @@ static inline int set_encoding(char *encode_rule)
         separators = 0;
         length = 0;
     }
-    else if (!strcmp(encode_rule, "RFC-4648-5"))
+    else if (!strncmp(encode_rule, "RFC-4648-5", 32))
     {
         encode_char_set[62] = '-';
         encode_char_set[63] = '_';
@@ -92,7 +92,7 @@ static inline int set_encoding(char *encode_rule)
         separators = 0;
         length = 0;
     }
-    else if (!strcmp(encode_rule, "RFC-4880"))
+    else if (!strncmp(encode_rule, "RFC-4880", 32))
     {
         encode_char_set[62] = '+';
         encode_char_set[63] = '/';
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
                 if (!flag_enc & !flag_dec)
                 {
                     flag_enc = 1;
-                    strcpy(input_filename, optarg);
+                    strncpy(input_filename, optarg, 256);
                 }
                 else
                 {
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
                 if (!flag_enc & !flag_dec)
                 {
                     flag_dec = 1;
-                    strcpy(input_filename, optarg);
+                    strncpy(input_filename, optarg, 256);
                 }
                 else
                 {
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
                 if (!flag_output)
                 {
                     flag_output = 1;
-                    strcpy(output_filename, optarg);
+                    strncpy(output_filename, optarg, 256);
                 }
                 else
                 {
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
                 if (!flag_rule)
                 {
                     flag_rule = 1;
-                    strcpy(encode_rule, optarg);
+                    strncpy(encode_rule, optarg, 32);
                 }
                 else
                 {
