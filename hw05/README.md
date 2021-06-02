@@ -8,6 +8,7 @@ Table of Contents
 * [Build](#build)
 * [Run](#run)
 * [Limitation](#limitation)
+* [Issue](#issue)
 * [Develop Note](Note.md)
 * [License](LICENSE)
 
@@ -42,5 +43,16 @@ you can run `./<file> --help` in the shell to see the usage.
 
 Limitation
 ----------
+### hw0501
+The maximum length of the file name is 255.
+
 ### hw0502
 Only work on UNIX-like platforms.
+
+### hw05003
+The maximum length of the search target is 1000.
+
+Issue
+-----
+### hw05003
+Unicode characters may not be converted.

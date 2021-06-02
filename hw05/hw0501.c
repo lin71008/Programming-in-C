@@ -131,7 +131,7 @@ int main(int argc, char **argv)
                 if (!flag_enc & !flag_dec)
                 {
                     flag_enc = 1;
-                    strncpy(input_filename, optarg, 256);
+                    strncpy(input_filename, optarg, 255);
                 }
                 else
                 {
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
                 if (!flag_enc & !flag_dec)
                 {
                     flag_dec = 1;
-                    strncpy(input_filename, optarg, 256);
+                    strncpy(input_filename, optarg, 255);
                 }
                 else
                 {
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
                 if (!flag_output)
                 {
                     flag_output = 1;
-                    strncpy(output_filename, optarg, 256);
+                    strncpy(output_filename, optarg, 255);
                 }
                 else
                 {
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
                 if (!flag_rule)
                 {
                     flag_rule = 1;
-                    strncpy(encode_rule, optarg, 32);
+                    strncpy(encode_rule, optarg, 31);
                 }
                 else
                 {
@@ -217,7 +217,6 @@ int main(int argc, char **argv)
     int8_t write_buffer[1600] = {0};
     int read_buffer_size = 0;
     int write_buffer_size = 0;
-    int write_counter = 0;
 
     if (flag_enc)
     {

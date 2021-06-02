@@ -22,6 +22,7 @@ TEMPFILE = test_out*
 
 test-hw0501:
 	@if ! test -e $(EXEC); then echo "$(EXEC) not exist."; false; fi
+	@echo "=== start testing $(EXEC)"
 	timeout -k 9 $(TIMELIMIT) ./$(EXEC) > test_out
 	timeout -k 9 $(TIMELIMIT) ./$(EXEC) --help >> test_out
 	timeout -k 9 $(TIMELIMIT) ./$(EXEC) -e ./LICENSE -o test_out_hw0501_encoding >> test_out
@@ -31,6 +32,7 @@ test-hw0501:
 
 test-hw0503:
 	@if ! test -e $(EXEC); then echo "$(EXEC) not exist."; false; fi
+	@echo "=== start testing $(EXEC)"
 	timeout -k 9 $(TIMELIMIT) ./$(EXEC) > test_out
 	timeout -k 9 $(TIMELIMIT) ./$(EXEC) --help >> test_out
 	timeout -k 9 $(TIMELIMIT) ./$(EXEC) -q encryption >> test_out
@@ -59,7 +61,7 @@ install:
 	@echo "Please install libcurl and add it to the compiler search path by yourself."
 
 $(OBJECTS): %o:%c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	-$(CC) $(CFLAGS) -c -o $@ $<
 
 $(TARGETS): %: $(%)
 	-$(CC) -o $@ $^ $(LDFLAGS)
@@ -82,7 +84,7 @@ clean:
 # ignore below
 
 pre-release-exe: CFLAGS = -std=gnu11 -O2 -Wall -Werror -Wextra
-pre-release-exe: all test clean
+pre-release-exe: all test
 	@
 
 pre-release-doc: DOCUMENT = $(filter-out $(EXCLUDE),$(wildcard *.md))

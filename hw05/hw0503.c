@@ -27,7 +27,7 @@ static void usage()
 int main(int argc, char **argv)
 {
     int32_t option = 0;
-    char target[100] = {0};
+    char target[101] = {0};
     char search_url[200] = "https://dblp.org/search?q=";
     while ((option = getopt_long(argc, argv, "hq:", long_options, NULL)) != -1)
     {
@@ -75,6 +75,15 @@ int main(int argc, char **argv)
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, search_url);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+
+        // curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1);
+        // curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1);
+        // curl_easy_setopt(curl, CURLOPT_CAINFO, "ca-bundle.crt");
+
         res = curl_easy_perform(curl);
         if(res != CURLE_OK)
         {
@@ -149,7 +158,7 @@ int main(int argc, char **argv)
                     sscanf(buffer+31, "%d", &year);
                 }
 
-                printf("\tTitle: %s/n", title);
+                printf("\tTitle: %s\n", title);
                 printf("\tAuthor: ");
                 for (int32_t i = 0; i < author_counter; ++i)
                 {

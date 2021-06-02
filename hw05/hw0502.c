@@ -25,8 +25,8 @@ void stat()
     if ((fp = fopen("/proc/stat", "r")) == NULL) return;
     while(!feof(fp))
     {
-        fread(buffer, 1, 255, fp);
-        if (strstr(buffer, "cpu"))
+        size_t i = fread(buffer, 1, 255, fp);
+        if (i && strstr(buffer, "cpu"))
         {
             sscanf(buffer, "cpu %lu %lu %lu %lu %lu %lu %lu %lu",
                    &usr, &nie, &sys, &idle, &iow, &irq, &sirq, &stead);
@@ -60,7 +60,7 @@ void stat()
     stead_sav = stead;
 }
 
-int main(int argc, char const *argv[])
+int main()
 {
     signal(SIGALRM, stat);
     struct itimerval tick = {    .it_value.tv_sec = 1,    .it_value.tv_usec = 0,
