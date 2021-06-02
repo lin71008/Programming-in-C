@@ -1,0 +1,43 @@
+Error: please run ./hw0503 --help to see the usage.
+Usage:    ./hw0503 -q <target>
+Search DBLP and show the first ten papers of the query result.
+Paper 01:
+    Title: Nonlinear dynamics, applications to chaos-based encryption. (Nichtlineare Dynamik, Anwendungen f&#252;r die Chaos-basierte Verschl&#252;sselung / Dynamique non-lin&#233;aire, applications au chiffrement bas&#233; sur le chaos)./n    Author: Zongchao Qiao.
+    Source:  &#201;cole centrale de Nantes, France,
+    Year: 2021
+Paper 02:
+    Title: A modified Dual-Ouroboros public-key encryption using Gabidulin codes./n Author: Jon-Lark Kim, Young-Sik Kim, Lucky Erap Galvez, Myeong Jae Kim.
+    Source:  Appl. Algebra Eng. Commun. Comput. 32: 147-156
+    Year: 2021
+Paper 03:
+    Title: A Novel Parallelizable Chaotic Image Encryption Scheme Based on Elliptic Curves./n   Author: Alaa M. Abbas, Ayman Alharbi, Saleh Ibrahim.
+    Source:  IEEE Access 9: 54978-54991
+    Year: 2021
+Paper 04:
+    Title: A Dual Layer Secure Data Encryption and Hiding Scheme for Color Images Using the Three-Dimensional Chaotic Map and Lah Transformation./n Author: Ammar S. Alanazi.
+    Source:  IEEE Access 9: 26583-26592
+    Year: 2021
+Paper 05:
+    Title: A Polymorphic Advanced Encryption Standard - A Novel Approach./n Author: Abdelrahman Altigani, Shafaatunnur Hasan, Bazara I. A. Barry, Shiraz Naserelden, Muawia A. Elsadig, Huwaida T. Elshoush.
+    Source:  IEEE Access 9: 20191-20207
+    Year: 2021
+Paper 06:
+    Title: BOPE: Boundary Order-Preserving Encryption Scheme in Relational Database System./n   Author: Si Chen, Lin Li 0041, Wenyu Zhang, Xiaolin Chang, Zhen Han.
+    Source:  IEEE Access 9: 30124-30134
+    Year: 2021
+Paper 07:
+    Title: Multilayer Dynamic Encryption for Security OFDM-PON Using DNA-Reconstructed Chaotic Sequences Under Cryptanalysis./n Author: Mengwei Cui, Chongfu Zhang, Yuhang Chen, Zhi Zhang, Tingwei Wu, Heping Wen.
+    Source:  IEEE Access 9: 18052-18060
+    Year: 2021
+Paper 08:
+    Title: An Image Encryption Algorithm Based on Bisection Method and One-Dimensional Piecewise Chaotic Map./n Author: Aesha N. Elghandour, Ahmed M. Salah, Yasser A. Elmasry, Abdelrahman A. Karawia.
+    Source:  IEEE Access 9: 43411-43421
+    Year: 2021
+Paper 09:
+    Title: A Novel Chaotic Block Image Encryption Algorithm Based on Deep Convolutional Generative Adversarial Networks./n  Author: Pengfei Fang, Han Liu 0007, Chengmao Wu.
+    Source:  IEEE Access 9: 18497-18517
+    Year: 2021
+Paper 10:
+    Title: A Gray Image Encryption Technique Using the Concept of Water Waves, Chaos and Hash Function./n   Author: Amnah Firdous, Aqeel-ur Rehman, Malik Muhammad Saad Missen.
+    Source:  IEEE Access 9: 11675-11693
+    Year: 2021

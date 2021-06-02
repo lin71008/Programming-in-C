@@ -9,6 +9,9 @@ hw0501: hw0501.o
 hw0502: hw0502.o
 hw0503: hw0503.o
 
+# compiled option for curl
+hw0503: LDFLAGS += -lcurl
+
 TPATH = ./test
 TIMELIMIT = 0.00s
 TIGNORE = hw0502
@@ -24,6 +27,13 @@ test-hw0501:
 	timeout -k 9 $(TIMELIMIT) ./$(EXEC) -e ./LICENSE -o test_out_hw0501_encoding >> test_out
 	timeout -k 9 $(TIMELIMIT) ./$(EXEC) -d test_out_hw0501_encoding -o ./test_out_hw0501_decoding >> test_out
 	diff ./LICENSE ./test_out_hw0501_decoding  -B -w -s
+	diff ./test_out $(TESTOUTPUT) -B -w -s
+
+test-hw0503:
+	@if ! test -e $(EXEC); then echo "$(EXEC) not exist."; false; fi
+	timeout -k 9 $(TIMELIMIT) ./$(EXEC) > test_out
+	timeout -k 9 $(TIMELIMIT) ./$(EXEC) --help >> test_out
+	timeout -k 9 $(TIMELIMIT) ./$(EXEC) -q encryption >> test_out
 	diff ./test_out $(TESTOUTPUT) -B -w -s
 
 ################################################################################
