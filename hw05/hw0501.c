@@ -236,7 +236,7 @@ int main(int argc, char **argv)
             if (remain > 0) write_buffer[write_buffer_size++] = encode_char_set[read_buffer[ri+0] >> 2];
             if (remain > 0) write_buffer[write_buffer_size++] = encode_char_set[(read_buffer[ri+0] & 0x03) << 4 | read_buffer[ri+1] >> 4];
             if (remain > 1) write_buffer[write_buffer_size++] = encode_char_set[(read_buffer[ri+1] & 0x0F) << 2 | read_buffer[ri+2] >> 6];
-            for (int i = 0; padding && i < (3 - remain); ++i)
+            for (int i = 0; feof(fp1) && padding && i < (4 - remain) % 4; ++i)
             {
                 write_buffer[write_buffer_size++] = '=';
             }
@@ -280,7 +280,7 @@ int main(int argc, char **argv)
                 int8_t a2 = decode_char_set[read_buffer[ri+2]];
                 int8_t a3 = decode_char_set[read_buffer[ri+3]];
 
-                if (a0 == -1 || a1 == -1 || a2 == -1 || a3 == -1 || a0 == 64 || a1 == 64 || ((a2 == 64 || a3 == 64) && !feof(fp1)))
+                if (a0 == -1 || a1 == -1 || a2 == -1 || a3 == -1)
                 {
                     printf("Error: wrong encoding or given file contain invalid character.\n");
                     fclose(fp2);
