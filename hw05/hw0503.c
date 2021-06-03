@@ -64,8 +64,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    // FILE *fp = tmpfile();
-    FILE *fp = fopen("./a.json", "wb+");
+    FILE *fp = tmpfile();
     strcat(search_url, target);
 
     CURL *curl = NULL;

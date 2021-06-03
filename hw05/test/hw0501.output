@@ -7,4 +7,4 @@ Options:
   -r, --rule      Encoding rule.
                   Supported: RFC-1421, RFC-2045, RFC-2152, RFC-3501,
                              RFC-4648-4, RFC-4648-5, RFC-4880.
-                  *** DEFAULT USING RFC-1421 ***
+                  *** DEFAULT USING RFC-2045 ***

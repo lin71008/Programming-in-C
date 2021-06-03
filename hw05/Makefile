@@ -13,7 +13,7 @@ hw0503: hw0503.o
 hw0503: LDFLAGS += -lcurl
 
 TPATH = ./test
-TIMELIMIT = 0.00s
+TIMELIMIT = 10.00s
 TIGNORE = hw0502
 
 TESTINPUT = $(patsubst %,$(TPATH)/%.input,$(EXEC))

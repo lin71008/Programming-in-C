@@ -38,7 +38,7 @@ static void usage()
     printf("  -r, --rule      Encoding rule.\n");
     printf("                  Supported: RFC-1421, RFC-2045, RFC-2152, RFC-3501,\n");
     printf("                             RFC-4648-4, RFC-4648-5, RFC-4880.\n");
-    printf("                  *** DEFAULT USING RFC-1421 ***\n");
+    printf("                  *** DEFAULT USING RFC-2045 ***\n");
 }
 
 static inline int set_encoding(char *encode_rule)
@@ -56,7 +56,7 @@ static inline int set_encoding(char *encode_rule)
     {
         encode_char_set[62] = '+';
         encode_char_set[63] = '/';
-        padding = 0;
+        padding = 1;
         separators = 1;
         length = 76;
     }
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
     }
     if (!flag_rule)
     {
-        strcpy(encode_rule, "RFC-1421");
+        strcpy(encode_rule, "RFC-2045");
         flag_rule = 1;
     }
     if (set_encoding(encode_rule))
@@ -312,15 +312,28 @@ int main(int argc, char **argv)
                 }
                 else
                 {
-                    printf("Error: file format unrecognized.\n");
-                    fclose(fp2);
-                    fclose(fp1);
-                    return 0;
+                    int flag_padding = 1;
+                    for (int i = 0; i < remain; ++i)
+                    {
+                        if (read_buffer[i] != ' ' && read_buffer[i] != '\n' && read_buffer[i] != '\t')
+                        {
+                            flag_padding = 0;
+                            break;
+                        }
+                    }
+                    if (!flag_padding)
+                    {
+                        printf("Error: file format unrecognized.\n");
+                        fclose(fp2);
+                        fclose(fp1);
+                        return 0;
+                    }
                 }
             }
             fwrite(write_buffer, 1, write_buffer_size, fp2);
         }
     }
+    fprintf(fp2, "\n");  // newline at the end of file
 
     fclose(fp2);
     fclose(fp1);
