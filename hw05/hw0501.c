@@ -213,8 +213,8 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    uint8_t read_buffer[1201] = {0};
-    uint8_t write_buffer[1601] = {0};
+    static uint8_t read_buffer[1201] = {0};
+    static uint8_t write_buffer[1601] = {0};
     int read_buffer_size = 0;
     int write_buffer_size = 0;
 
@@ -270,30 +270,36 @@ int main(int argc, char **argv)
             write_buffer_size = 0;
             read_buffer_size += fread(read_buffer+read_buffer_size, 1, 1200, fp1);
 
-            for (ri = 0; ri <= (read_buffer_size - 4); ri += 4)
+            int a_buffer_counter = 0;
+            uint8_t a_buffer[5] = {0};
+
+            for (int i = 0; i < read_buffer_size; ++i)
             {
-                while (read_buffer[ri] == '\n' && ri <= (read_buffer_size - 4))
+                if (read_buffer[i] != '\n') a_buffer[a_buffer_counter++] = read_buffer[i];
+                if (a_buffer_counter == 4)
                 {
-                    ri++;
+                    uint8_t a0 = decode_char_set[a_buffer[0]];
+                    uint8_t a1 = decode_char_set[a_buffer[1]];
+                    uint8_t a2 = decode_char_set[a_buffer[2]];
+                    uint8_t a3 = decode_char_set[a_buffer[3]];
+
+                    if (a0 == 128 || a1 == 128 || a2 == 128 || a3 == 128)
+                    {
+                        printf("Error: wrong encoding or given file contain invalid character.\n");
+                        fclose(fp2);
+                        fclose(fp1);
+                        return 0;
+                    }
+
+                    write_buffer[write_buffer_size++] = (a0 << 2) | ((a1 & 0x3F) >> 4);
+                    if (a2 != 64) write_buffer[write_buffer_size++] = (a1 << 4) | ((a2 & 0x3F) >> 2);
+                    if (a3 != 64) write_buffer[write_buffer_size++] = (a2 << 6) | ((a3 & 0x3F));
+
+                    a_buffer_counter = 0;
+                    ri = i+1;
                 }
-
-                uint8_t a0 = decode_char_set[read_buffer[ri+0]];
-                uint8_t a1 = decode_char_set[read_buffer[ri+1]];
-                uint8_t a2 = decode_char_set[read_buffer[ri+2]];
-                uint8_t a3 = decode_char_set[read_buffer[ri+3]];
-
-                if (a0 == 128 || a1 == 128 || a2 == 128 || a3 == 128)
-                {
-                    printf("Error: wrong encoding or given file contain invalid character.\n");
-                    fclose(fp2);
-                    fclose(fp1);
-                    return 0;
-                }
-
-                write_buffer[write_buffer_size++] = (a0 << 2) | ((a1 & 0x3F) >> 4);
-                if (a2 != 64) write_buffer[write_buffer_size++] = (a1 << 4) | ((a2 & 0x3F) >> 2);
-                if (a3 != 64) write_buffer[write_buffer_size++] = (a2 << 6) | ((a3 & 0x3F));
             }
+
             int remain = read_buffer_size - ri;
             if (remain) memcpy(read_buffer, read_buffer+ri, remain);
             read_buffer_size = remain;
