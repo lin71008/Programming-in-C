@@ -16,7 +16,7 @@ static char encode_char_set[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu
 static int padding = 1;
 static int separators = 1;
 static int length = 64;
-static int8_t decode_char_set[256] = {0};
+static uint8_t decode_char_set[256] = {0};
 
 static const struct option long_options[] =
 {
@@ -104,12 +104,12 @@ static inline int set_encoding(char *encode_rule)
     {
         return 1;
     }
-    memset(decode_char_set, -1, 255);
+    memset(decode_char_set, 128, 255);
     for (int i = 0; i < 64; ++i)
     {
-        decode_char_set[((int8_t) encode_char_set[i])] = i;
+        decode_char_set[((uint8_t) encode_char_set[i])] = i;
     }
-    decode_char_set[((int8_t) '=')] = 64;
+    decode_char_set[((uint8_t) '=')] = 64;
     return 0;
 }
 
@@ -213,8 +213,8 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    int8_t read_buffer[1200] = {0};
-    int8_t write_buffer[1600] = {0};
+    uint8_t read_buffer[1201] = {0};
+    uint8_t write_buffer[1601] = {0};
     int read_buffer_size = 0;
     int write_buffer_size = 0;
 
@@ -223,10 +223,11 @@ int main(int argc, char **argv)
         while (!feof(fp1))
         {
             int ri = 0;
-            memset(read_buffer, 0, 1200);
+            memset(read_buffer, 0, 1201);
             read_buffer_size = fread(read_buffer, 1, 1200, fp1);
             for (ri = 0; ri <= (read_buffer_size - 3); ri += 3)
             {
+
                 write_buffer[write_buffer_size++] = encode_char_set[read_buffer[ri+0] >> 2];
                 write_buffer[write_buffer_size++] = encode_char_set[(read_buffer[ri+0] & 0x03) << 4 | read_buffer[ri+1] >> 4];
                 write_buffer[write_buffer_size++] = encode_char_set[(read_buffer[ri+1] & 0x0F) << 2 | read_buffer[ri+2] >> 6];
@@ -236,7 +237,7 @@ int main(int argc, char **argv)
             if (remain > 0) write_buffer[write_buffer_size++] = encode_char_set[read_buffer[ri+0] >> 2];
             if (remain > 0) write_buffer[write_buffer_size++] = encode_char_set[(read_buffer[ri+0] & 0x03) << 4 | read_buffer[ri+1] >> 4];
             if (remain > 1) write_buffer[write_buffer_size++] = encode_char_set[(read_buffer[ri+1] & 0x0F) << 2 | read_buffer[ri+2] >> 6];
-            for (int i = 0; feof(fp1) && padding && i < (4 - remain) % 4; ++i)
+            for (int i = 0; feof(fp1) && padding && i < (3 - remain) % 3; ++i)
             {
                 write_buffer[write_buffer_size++] = '=';
             }
@@ -268,6 +269,7 @@ int main(int argc, char **argv)
             int ri = 0;
             write_buffer_size = 0;
             read_buffer_size += fread(read_buffer+read_buffer_size, 1, 1200, fp1);
+
             for (ri = 0; ri <= (read_buffer_size - 4); ri += 4)
             {
                 while (read_buffer[ri] == '\n' && ri <= (read_buffer_size - 4))
@@ -275,12 +277,12 @@ int main(int argc, char **argv)
                     ri++;
                 }
 
-                int8_t a0 = decode_char_set[read_buffer[ri+0]];
-                int8_t a1 = decode_char_set[read_buffer[ri+1]];
-                int8_t a2 = decode_char_set[read_buffer[ri+2]];
-                int8_t a3 = decode_char_set[read_buffer[ri+3]];
+                uint8_t a0 = decode_char_set[read_buffer[ri+0]];
+                uint8_t a1 = decode_char_set[read_buffer[ri+1]];
+                uint8_t a2 = decode_char_set[read_buffer[ri+2]];
+                uint8_t a3 = decode_char_set[read_buffer[ri+3]];
 
-                if (a0 == -1 || a1 == -1 || a2 == -1 || a3 == -1)
+                if (a0 == 128 || a1 == 128 || a2 == 128 || a3 == 128)
                 {
                     printf("Error: wrong encoding or given file contain invalid character.\n");
                     fclose(fp2);
@@ -297,15 +299,15 @@ int main(int argc, char **argv)
             read_buffer_size = remain;
             if (feof(fp1) && remain)  // no padding
             {
-                int8_t a0 = decode_char_set[read_buffer[0]];
-                int8_t a1 = decode_char_set[read_buffer[1]];
-                int8_t a2 = decode_char_set[read_buffer[2]];
+                uint8_t a0 = decode_char_set[read_buffer[0]];
+                uint8_t a1 = decode_char_set[read_buffer[1]];
+                uint8_t a2 = decode_char_set[read_buffer[2]];
 
-                if (remain == 2 && a0 != -1 && a0 != 64 && a1 != -1 && a1 != 64)
+                if (remain == 2 && a0 != 128 && a0 != 64 && a1 != 128 && a1 != 64)
                 {
                     write_buffer[write_buffer_size++] = (a0 << 2) | (a1 >> 4);
                 }
-                else if (remain == 3 && a0 != -1 && a0 != 64 && a1 != -1 && a1 != 64 && a2 != -1 && a2 != 64)
+                else if (remain == 3 && a0 != 128 && a0 != 64 && a1 != 128 && a1 != 64 && a2 != 128 && a2 != 64)
                 {
                     write_buffer[write_buffer_size++] = (a0 << 2) | (a1 >> 4);
                     write_buffer[write_buffer_size++] = (a1 << 4) | (a2 >> 2);
