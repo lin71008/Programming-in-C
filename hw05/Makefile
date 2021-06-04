@@ -98,6 +98,7 @@ pre-release-doc:
 	sed '/ignore below/Q' ./Makefile > ./pre-release/Makefile
 	test -e ./LICENSE && cp ./LICENSE ./pre-release/LICENSE
 	test -e ./Note.md && cp ./Note.md ./pre-release/Note.md
+	test -d test && cp -r ./test ./pre-release/test
 
 release: VERSION := $(shell date --utc +"%m-%d-%Y-%H-%M-%S")
 release: SOURCE := $(wildcard *.[^(exe|out)])
@@ -105,6 +106,8 @@ release: SOURCE := $(wildcard *.[^(exe|out)])
 release: pre-release-exe pre-release-doc clean
 	7z a ./release/$(VERSION).zip ./pre-release/*
 	7z u ./release/$(VERSION).zip $(SOURCE)
+	7z a ./release/40641213S_hw05.zip ./pre-release/*
+	7z u ./release/40641213S_hw05.zip $(SOURCE)
 	rm -r -f ./pre-release/
 	@echo "================================"
 	@echo "The release was success."
